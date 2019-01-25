@@ -1,0 +1,274 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage{amsmath, amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+
+% To set the enumeration method
+\usepackage[shortlabels]{enumitem}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+
+\title{PM511 b: Assignment 1}
+\author{Group 7}
+\date{January 2019}
+
+\begin{document}
+
+% We use this command to change the font of the entire document. We can take it out if you want :)
+\fontfamily{lmss}\selectfont
+
+\maketitle
+
+\section*{Question 1}
+
+Under the assumption that $\pi=\dfrac{1}{2}$, $Y \sim Bin(2, \dfrac{1}{2})$.
+
+\textbf{a)}
+
+Let $A$ be the event space for $Y$. Then $A=\{no \  heads, \ one \ head, \ two \ heads \}$ and $X(A)=\{0, 1, 2 \}$.
+
+Then:
+
+
+$P(0)=\dfrac{2!}{2! 0!}(\dfrac{1}{2})^0(\dfrac{1}{2})^2=\dfrac{1}{4}$
+
+$P(1)=\dfrac{2!}{1! 1!}(\dfrac{1}{2})^1(\dfrac{1}{2})^1=2\dfrac{1}{4}=\dfrac{1}{2}$
+
+$P(2)=\dfrac{2!}{0! 2!}(\dfrac{1}{2})^2(\dfrac{1}{2})^0=\dfrac{1}{4}$.
+
+
+\textbf{b)}
+
+$E(Y)=np=2 \cdot \dfrac{1}{2}= 1$.
+
+$SD(Y)=\sqrt{np(1-p)}=\sqrt{2\cdot \dfrac{1}{2}(1-\dfrac{1}{2})}=\sqrt{\dfrac{1}{2}}=\dfrac{1}{\sqrt{2}}$. This is approximately .7071.
+
+\textbf{c)}
+
+$P(0)=\dfrac{2!}{2! 0!}(\dfrac{3}{5})^0(\dfrac{2}{5})^2=\dfrac{4}{25}=.16$
+
+$P(1)=\dfrac{2!}{1! 1!}(\dfrac{3}{5})^1(\dfrac{2}{5})^1=2\dfrac{6}{25}=\dfrac{12}{25}=.48$
+
+$P(2)=\dfrac{2!}{0! 2!}(\dfrac{3}{5})^2(\dfrac{2}{5})^0=\dfrac{9}{25}=.36$.
+
+
+\section*{Question 2}
+
+Answer:
+
+\textbf{a)}
+
+As $n1+n2+n3=3$, so $n3=3-n1-n2$.
+When n1 and n2 are known, then n3 is fixed.
+Thus, only n1 and n2 are independent variables, so it's two-dimensional.
+
+\textbf{b)}
+
+Total 10 possible observations: \par
+(0, 0, 3); (0, 1, 2); (0, 2, 1); (0, 3, 0); (1, 0, 2); (1, 1, 1); (1, 2, 0); (2, 0, 1); (2, 1, 0); (3, 0, 0).
+
+\textbf{c)}
+
+$P(1, 2, 0)=\dfrac{3!}{1! 2! 0!}\cdot 0.25^1 \cdot 0.50^2 \cdot 0.25^0 = 0.188$.
+
+\textbf{d)}
+
+For n1 alone, it's a binomial distribution, Binomial(3, $\pi_1$)
+
+\section*{Question 3}
+
+Answer:
+
+Before starting, we prepare the stata session for our work:
+
+\begin{verbatim}
+. set more off
+
+. set trace off
+
+. 
+. clear all
+
+. 
+. // Setting working directory
+. cd /home/vegayon/Dropbox/usc/clases/2019_PM511B/assignments/01
+/home/vegayon/Dropbox/usc/clases/2019_PM511B/assignments/01
+\end{verbatim}
+
+\textbf{a)} To load the data we use the `use` command:
+
+\begin{verbatim}
+. use vitals.dta, clear
+
+\end{verbatim}
+
+\textbf{b)} We can generate the desired variable using the \texttt{gen} command in a single step by generating a boolean variable while restricting the operation to observations that have \texttt{sbp} different from missing:
+
+\begin{verbatim}
+. gen hibp = sbp > 140 if sbp != .
+\end{verbatim}
+
+\textbf{c)} To summarize the data by the new variable generated, we can combine the \texttt{summ} command with \texttt{bysort}:
+
+\begin{verbatim}
+. bysort hibp: summ sbp
+
+-------------------------------------------------------------------------------
+-> hibp = 0
+
+    Variable |       Obs        Mean    Std. Dev.       Min        Max
+-------------+--------------------------------------------------------
+         sbp |      1880    121.3106     11.4915         87        140
+
+-------------------------------------------------------------------------------
+-> hibp = 1
+
+    Variable |       Obs        Mean    Std. Dev.       Min        Max
+-------------+--------------------------------------------------------
+         sbp |       446    153.4013    11.41861        141        . 
+\end{verbatim}
+
+\textbf{d)} As shown by the \texttt{tab} command, 19\% of the observations have high blood pressure:
+
+\begin{verbatim}
+. tab hibp
+
+       hibp |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,880       80.83       80.83
+          1 |        446       19.17      100.00
+------------+-----------------------------------
+      Total |      2,326      100.00
+\end{verbatim}
+
+\textbf{e)} After following the instructions, here is the output command (and result) from Stata:
+
+\begin{verbatim}
+. prtest hibp == .25
+
+One-sample test of proportion                   hibp: Number of obs =     2326
+------------------------------------------------------------------------------
+    Variable |       Mean   Std. Err.                     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        hibp |   .1917455   .0081627                       .175747     .207744
+------------------------------------------------------------------------------
+    p = proportion(hibp)                                          z =  -6.4883
+Ho: p = 0.25
+
+    Ha: p < 0.25                 Ha: p != 0.25                 Ha: p > 0.25
+ Pr(Z < z) = 0.0000         Pr(|Z| > |z|) = 0.0000          Pr(Z > z) = 1.0000
+\end{verbatim}
+
+Responses for the subquestions:
+
+\begin{enumerate}[i.]
+    \item $Z=-6.4883$, $\mbox{p-value}< 0.001$.
+    \item Yes, with a p-value close to 0, we can reject the null at various levels, including $\alpha=0.01$.
+    \item \texttt{prtest hibp == .25}
+\end{enumerate}
+
+\textbf{f)} After following the instructions, here is the resulting command and output from Stata:
+
+\begin{verbatim}
+. cii 2326 446, wald
+
+                                                         -- Binomial Wald ---
+    Variable |        Obs        Mean    Std. Err.       [95% Conf. Interval]
+-------------+---------------------------------------------------------------
+             |       2326    .1917455    .0081627         .175747     .207744
+\end{verbatim}
+
+Responses for the subquestions:
+
+\begin{enumerate}[i.]
+    \item $[0.175, 0.207]$
+    \item At the 95\% confidence, yes.
+    \item \texttt{cii 2326 446, wald}
+\end{enumerate}
+
+\section*{Question 4}
+
+Answer:
+
+\textbf{a)}
+Wald test: $Z=\dfrac{0-0.5}{\sqrt{\dfrac{0 \cdot (1-0)}{25}}} = \dfrac{-0.5}{0}$. So it's undefined.
+
+\textbf{b)}
+95\% Wald confidence interval for $\pi$:
+$0 \pm 1.96 \sqrt{\dfrac{0\cdot1}{25}}=0$.
+Since 95\% CI only include 0, rather than a range of value, which means we are definitely sure that the $\pi$ is 0. So it's not believable.
+
+\textbf{c)}
+Score test:
+$Z=\dfrac{0-0.5}{\sqrt{\dfrac{0.5(1-0.5)}{25}}}=-5$, p<0.001 (di 2*normal(-5)).
+
+\textbf{d)}
+$\pm 1.96 = \dfrac{(0-\pi)}{\sqrt{\dfrac{\pi(1-\pi)}{25}}}$ \par
+$28.84\pi^2-3.84\pi=0$ \par
+So 95\% CI: 0, 0.133
+
+\section*{Question 5}
+
+\textbf{a)}
+
+$H_0: \pi = \dfrac{1}{2}$
+
+\textbf{i)}.  $H_A: \pi > \dfrac{1}{2}$
+
+$P(X \leq 2)= P(X \geq 8)= .001 + .01 + .044 = 0.055$.
+\newline
+
+Thus, $p=0.055$. This does not meet our threshold of $\alpha = 0.05$, thus we fail to reject the null hypothesis that $\pi = \dfrac{1}{2}$, although the result does tend towards significance.
+
+\textbf{ii)}  $H_A: \pi < \dfrac{1}{2}$
+
+$P(X \leq 8)= .001+.01+.044+.117 +.205 +.246 +.205 +.117 +.044=.989$.
+
+Thus, $p=0.989$ and we fail to reject the null hypothesis that $\pi=\dfrac{1}{2}$ for the subjects in the clinical trial.
+
+\textbf{b)}
+
+
+\textbf{i)}.  $H_A: \pi > \dfrac{1}{2}$
+
+$P(X \leq 2)= P(X \geq 8)= .001 + .01 + \dfrac{.044}{2} = 0.033$.
+\newline
+
+Thus, $p = 0.033$ and we reject the null hypothesis that $\pi=\dfrac{1}{2}$ for the subjects in the clinical trial in favor of the alternative.
+
+\textbf{ii)}  $H_A: \pi < \dfrac{1}{2}$
+
+$P(X \leq 8)= .001+.01+.044+.117 +.205 +.246 +.205 +.117 +\dfrac{.044}{2}=.967$.
+
+Conclusively, $p=0.967$ and we fail to reject the null hypothesis that $\pi=\dfrac{1}{2}$ for the subjects in the clinical trial.
+
+\textbf{c)}
+
+Put succinctly, hypothesis tests are a form of argument by contradiction. Thus, the null and alternative hypotheses must be contradictory propositions. For a one-sided test then, the null is truly that a specified value is greater/lesser or equal than the alternative. Thus, when adding the ordinary p-values for the one-sided tests, we are double counting the observed value for discrete random variables. This isn’t the case for mid p-values since we divide the observed value by half, thereby correcting the sum.
+
+\textbf{i)}
+
+\textit{Output from Stata}:
+
+\begin{verbatim}
+. bitesti 10 8 0.5, detail
+
+        N   Observed k   Expected k   Assumed p   Observed p
+------------------------------------------------------------
+       10          8            5       0.50000      0.80000
+
+  Pr(k >= 8)           = 0.054688  (one-sided test)
+  Pr(k <= 8)           = 0.989258  (one-sided test)
+  Pr(k <= 2 or k >= 8) = 0.109375  (two-sided test)
+
+  Pr(k == 8)           = 0.043945  (observed)
+  Pr(k == 3)           = 0.117188
+  Pr(k == 2)           = 0.043945  (opposite extreme)
+
+\end{verbatim}
+
+\end{document}
