@@ -1,6 +1,8 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 
+\usepackage{tabularx, booktabs}
+
 \usepackage{amsmath, amssymb}
 \usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
@@ -13,9 +15,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 
-\title{PM511 b: Assignment 2}
+\title{PM511 b: Assignment 3}
 \author{Group 7}
-\date{Due: Feb 1, 2019}
+\date{Due: Feb 8, 2019}
 
 \begin{document}
 
@@ -26,374 +28,29 @@
 
 \section*{Question 1}
 
-Note: this seems to be a cohort (prospective) study where the exposure variable is smoking status. Let $S$ represent the event that a participant was a smoker, $L$ represent death from lung cancer, and $H$ represent death from heart disease. Then $\hat{\pi}__{L|S}=0.00140$, $\hat{\pi}_{L|S^c}=0.00010$, $\hat{\pi}_{H|S}=0.00669$, and $\hat{\pi}_{H|S^c}=0.00413$.
-
-\textbf{a)}
-
-\textit{\textbf{Association of Smoking with Lung Cancer:}}
-\begin{enumerate}
-\item
-    \textit{Difference of Proportions:} $\hat{\pi}_{L|S}=0.00140 - \hat{\pi}_{L|S^c}=0.00010= .0013.$ There was a $.13$ percent difference between the proportion of British male physicians who died from lung cancer provided that they smoked and those who died from lung cancer provided that they didn't.
-    \item
-    \textit{Relative Risk:}
-    $\dfrac{\hat{\pi}__{L|S}}{\hat{\pi}_{L|S^c}}=\dfrac{0.00140}{0.00010}=14$. The proportion of British male physicians who died from lung cancer provided that they smoked was 14 times greater than those who did not. 
-    \item
-       \textit{Odds Ratio:}
-       Since $\dfrac{.0014}{1-.0014}=.0014019$ and $\dfrac{.0001}{1-.0001}=0.00010001$, $\dfrac{.0014019}{.00010001}=14.0176$. Thus, according to this study, British male physicians who smoked were about 14.0176 times more likely to die from lung cancer than those who didn't smoke.
-\end{enumerate}
-
-\textit{\textbf{Association of Smoking with Heart Disease:}}
-\begin{enumerate}
-\item
-    \textit{Difference of Proportions:} $\hat{\pi}_{H|S}=0.00669 - \hat{\pi}_{H|S^c}=0.00413= .00256.$ There was a $.256$ percent difference between the proportion of British male physicians who died from heart disease who smoked with those who didn't.
-    \item
-    \textit{Relative Risk:}
-    $\dfrac{\hat{\pi}__{H|S}}{\hat{\pi}_{H|S^c}}=\dfrac{0.00669}{0.00413}=1.619$. The proportion of British male physicians who died from heart disease provided that they smoked was approximately 1.619 times greater than those who did not. 
-    \item
-       \textit{Odds Ratio:}
-       Since $\dfrac{.00669}{1-.00669}=.006735$ and $\dfrac{.00413}{1-.00413}=0.004147$, $\dfrac{.006735}{.004147}=1.624$. Thus, according to this study, British male physicians who smoked were about 1.624 times more likely to die from heart disease than those who didn't smoke.
-\end{enumerate}
-
-\textbf{b)}
-
-Note: $\hat{\pi}_L=\hat{\pi}_{L|S} +\hat{\pi}_{L|S^c} = 0.00140 + 0.00010 = .0015$ and $\hat{\pi}_H=\hat{\pi}_{H|S} + \hat{\pi}_{H|S^c}=0.00669 + 0.00413= .01082$. Thus, in this study about $.15$ percent of $n$ British male physicians died from lung cancer and $1.082$ percent died from heart disease. To estimate the magnitude of reductions in death, then, letting $\hat{\pi}_* \cdot n$ represent the number of deaths for any proportion, we would need to compare $n(\hat{\pi}_{L|S^c} -\hat{\pi}_{L|S})$ with $n(\hat{\pi}_{H|S^c} -\hat{\pi}_{H|S})$, where each relative difference of proportions multiplied by $n$ is an estimate of the reduction of deaths per category. Since $\hat{\pi}_{H|S^c} -\hat{\pi}_{H|S} = -.00256$ and $\hat{\pi}_{L|S^c} -\hat{\pi}_{L|S}=- .0013$, there would be $.00256n$ versus $.0013n$ less deaths for heart disease in relation to the absence of smoking versus lung cancer. This seems counter intuitive since the relative risk and odds ratio for lung cancer and smoking are much higher. However, since a lot more British male physicians died from heart disease than lung cancer, the greatest association between a reduction in deaths in the context of an absence of smoking is with heart disease and not lung cancer.
-
-\section*{Question 2}
-
-Before we start, we set up the Stata session by setting the corresponding directory, loading the dataset, and creating the {\texttt hibp} variable that we created in the previous homework.
-
-\begin{verbatim}
-set more off
-set trace off
-
-clear all
-
-cd /home/vegayon/Dropbox/usc/clases/2019_PM511B/assignments/02
-
-// Loading the data and generating the binary variable hibp
-use ../01/vitals
-gen hibp = sbp > 140 if sbp != .
-\end{verbatim}
-
-\textbf{a)} We use the following command:
-\begin{verbatim}
-gen bmi = 703 * weight / height^2 if (weight != . & sbp != .)
-\end{verbatim}
-
-\textbf{b)} Similar to what we did for generating the variable \texttt{hibp}, we use the following to generate the variable \texttt{overweight}:
-
-\begin{verbatim} 
-gen overweight = bmi >= 25 if bmi != .
-\end{verbatim}
-
-\textbf{c)} To generate a contingency table of \texttt{overweight} vs \texttt{hibp}, we use the following command:
-
-\begin{verbatim}
-    tab overweight hibp, all row
-\end{verbatim}
-
-THis returns the following
-
-\begin{verbatim}
-+----------------+
-| Key            |
-|----------------|
-|   frequency    |
-| row percentage |
-+----------------+
-
-           |         hibp
-overweight |         0          1 |     Total
------------+----------------------+----------
-         0 |       596         98 |       694 
-           |     85.88      14.12 |    100.00 
------------+----------------------+----------
-         1 |     1,283        348 |     1,631 
-           |     78.66      21.34 |    100.00 
------------+----------------------+----------
-     Total |     1,879        446 |     2,325 
-           |     80.82      19.18 |    100.00 
-\end{verbatim}
-
-\textbf{d)} Reading directly from the previous table, for those who are overweight, the percentage of individuals with high blood pressure is 21.34\% while for those who are not is 14.12\%.
-
-\textbf{e)} Let $p_1$ be the proportion of individuals who are overweight that have high blood pressure. Likewise, denote $p_2$ the proportion of individuals who are not overweight and that have high blood pressure. We can state the two-sided hypothesis test as follows:
-
-\begin{align*}
-    H_0: & p_1 = p_2,\quad \mbox{vs} \\
-    H_1: & p_1 \neq p_2
-\end{align*}
-
-\noindent In words, under the null the proportion of individuals with high blood pressure is not associated with the overweight status, and thus equal; vs the prevalence of high blood pressure is is associated with overweight status.
-
-\textbf{f)} Under the null, we can estimate a the proportion by joint MLE, so such proportion
-will be the weighted average, which in this case translates directly to the
-overall average of \texttt{hibp}. Once we obtain the MLE estimate, we can 
-calculate the expected value of overweight individuals with high-blood pressure
-by multiplying the number of individuals with overweight times the MLE estimator.
-The following code does such:
-
-\begin{verbatim}
-qui summ hibp
-local m = r(mean)
-qui count if overweight == 1
-di "Expected value: `=`m'*r(N)'"
-. Expected value: 312.7368873602751
-\end{verbatim}
-
-{\color{red} \textbf{NOTE:}} This results is a bit different from what we would obtain in the case of using the \texttt{expected} option in tab since then we would not be using all the information available as in the case of one individual the overweight variable is missing, in particular, individual with id 20580 has no information on weight, and thus is missed when computing the marginal probabilities for the \texttt{hibp} variable with the tab command.
-
-\textbf{g)} To run a Perason's Chi-square test of equal means we can use the following line of code:
-
-\begin{verbatim}
-tab overweight hibp, chi2
-\end{verbatim}
-
-Which returns the following
-
-\begin{verbatim}
-           |         hibp
-overweight |         0          1 |     Total
------------+----------------------+----------
-         0 |       596         98 |       694 
-         1 |     1,283        348 |     1,631 
------------+----------------------+----------
-     Total |     1,879        446 |     2,325 
-
-          Pearson chi2(1) =  16.3499   Pr = 0.000
-\end{verbatim}
-
-\textbf{h)} Using Pearson's Chi-square test we obtained the following results:
-Under the null hypothesis of equal proportions, the test statistic equals
-16.3499, which under the null corresponds to a p-value of < 0.0001, i.e. at the
-95\% level we reject the null of equal proportions. The relative risk for overweight (exposure) and high blood pressure is $348/1631=0.213$; the relative risk for non-overweight and high-blood pressure is $98/694=0.14$. The odds ratio for high blood pressure and overweight is approximately 1.51 times as likely than non-overweight. 
-
-\section*{Question 3}
-
-\textbf{a)}
-
-Null hypothesis: There is no association between happiness and income.
-Alternative hypotheses: Happiness and income level are associated.
-
-\textbf{b)}
-
-Row total: 21+159+110=290 \par
-Column total: 21+53+94=168 \par
-Total: 21+159+53+372+221+94+249+83=1362 \par
-Expected cell count: \dfrac{290*168}{1362} = 35.8
-
-\textbf{c)}
-
-Chi-square 73.4, df=(3-1)*(3-1)=4, p<0.001 \par
-
-There is strong association between happiness and income level (Chi-square 73.4, df=4, p<0.001). \par
-
-Code: di chi2den(4, 73.4) \par
-Result: 2.114e-15
-
-\textbf{d)}
-The cell count is 2.97 and 5.91 standard deviations lower than expected number of cell 21 and 83, respectively.
-If income level and happiness were independent, people have lower observed value in the two cells. Further the direction of the residuals  For the observed count of 21, this observation suggests moderate evidence against the two-sided null hypothesis because the observed frequency was less than expected. Residuals of -2.97 can be interpreted as ``For above average income there were less than expected people not too happy."  Similarly for the observation of below average income and very happy (83), the residuals were extremely less than expected. This provides strong evidence against the null (two-sided). We can interpret this as ``For below average income there were less than expected people very happy."  
-
-\textbf{e)}
-The cell count is 3.14 and 7.37 standard deviations higher than expected number of cell 110 and 94, respectively.
-So indicate Not too happy tend to have below average income, and very happy tend to have above average income.
-
-\textbf{f)}
-Pearson's Chi-square was used for testing of association between income level and happiness. There is a statistically significant association between income level and happiness (Chi-square 73.4, df=4, p<0.001). People have below average income level tends to be not too happy, with cell count 7.4 standard deviation higher than expected number.
-
-\section*{Question 4}
-
-\textbf{a)}
-
-\begin{verbatim}
-
-. cd "C:\Users\liding\Dropbox\Education\PhD\PM 511B Categorical and count data analysis\HW\HW02"
-C:\Users\liding\Dropbox\Education\PhD\PM 511B Categorical and count data analysis\HW\HW02
-
-. 
-. use hw2_4
-
-.  
-. label define weight_cat 1 "Normal or underweight" 2 "Overweight" 3 "Obese"
-
-. label define days_hospital 1 "<5 days" 2 "5-7 days" 3 "8-14 days" 4 ">14 days"
-
-
-. label variable weight_cat "Weight"
-
-. label variable days_hospital "Length of stay in hospital (days)"
-
-. label variable count "Number of subjects"
-
-. 
-end of do-file
-
-\end{verbatim}
-
-\textbf{b)}
-
-\begin{verbatim}
-
-. tab weight_cat days_hospital [freq=count], expected row chi2
-
-+--------------------+
-| Key                |
-|--------------------|
-|     frequency      |
-| expected frequency |
-|   row percentage   |
-+--------------------+
-
-           |      Length of stay in hospital (days)
-    Weight |         1          2          3          4 |     Total
------------+--------------------------------------------+----------
-         1 |        22         82         42         12 |       158 
-           |      16.7       69.1       50.2       22.0 |     158.0 
-           |     13.92      51.90      26.58       7.59 |    100.00 
------------+--------------------------------------------+----------
-         2 |        20         79         56         20 |       175 
-           |      18.5       76.6       55.6       24.4 |     175.0 
-           |     11.43      45.14      32.00      11.43 |    100.00 
------------+--------------------------------------------+----------
-         3 |        45        200        164         83 |       492 
-           |      51.9      215.3      156.2       68.6 |     492.0 
-           |      9.15      40.65      33.33      16.87 |    100.00 
------------+--------------------------------------------+----------
-     Total |        87        361        262        115 |       825 
-           |      87.0      361.0      262.0      115.0 |     825.0 
-           |     10.55      43.76      31.76      13.94 |    100.00 
-
-          Pearson chi2(6) =  16.4140   Pr = 0.012
-
-. 
-end of do-file
-
-\end{verbatim}
-
-There is a statistical significant association between weight category and length of hospital stay (Chi=16.41, P=0.012).  The direction of association is positive, for normal weight, we have greater than expected length of stays at most 7 days, and less than expected longer stays.  However for obese subjects we have greater than expected length of stays greater than 8 days, and less than expected length of stays for <5 and 5-7 categories.
-
-\textbf{c)}
-
-\begin{verbatim}
-    
-. tab weight_cat days_hospital [freq=count], expected row chi2 cchi2
-
-+--------------------+
-| Key                |
-|--------------------|
-|     frequency      |
-| expected frequency |
-| chi2 contribution  |
-|   row percentage   |
-+--------------------+
-
-           |      Length of stay in hospital (days)
-    Weight |         1          2          3          4 |     Total
------------+--------------------------------------------+----------
-         1 |        22         82         42         12 |       158 
-           |      16.7       69.1       50.2       22.0 |     158.0 
-           |       1.7        2.4        1.3        4.6 |      10.0 
-           |     13.92      51.90      26.58       7.59 |    100.00 
------------+--------------------------------------------+----------
-         2 |        20         79         56         20 |       175 
-           |      18.5       76.6       55.6       24.4 |     175.0 
-           |       0.1        0.1        0.0        0.8 |       1.0 
-           |     11.43      45.14      32.00      11.43 |    100.00 
------------+--------------------------------------------+----------
-         3 |        45        200        164         83 |       492 
-           |      51.9      215.3      156.2       68.6 |     492.0 
-           |       0.9        1.1        0.4        3.0 |       5.4 
-           |      9.15      40.65      33.33      16.87 |    100.00 
------------+--------------------------------------------+----------
-     Total |        87        361        262        115 |       825 
-           |      87.0      361.0      262.0      115.0 |     825.0 
-           |       2.8        3.6        1.7        8.4 |      16.4 
-           |     10.55      43.76      31.76      13.94 |    100.00 
-
-          Pearson chi2(6) =  16.4140   Pr = 0.012
-
-. 
-end of do-file
-    
-\end{verbatim}
-
-For each weight level, there is a trend across the length of stay in hospital. For normal or underweight and overweight categories, the cell count are higher than expected number, and gradually decreased to lower than expected cell counts across length of stay. For obese group, the cell count increased from lower than expected to higher than expected. The normal or underweight, >14 days hospitalization contributes to Chi-Square result the most, followed by obese and >14 days hospitalization. The deficiency of this Chi-Square test omits the order of the categories, so losing the information when conduct the test.  The chi-square test of association does not provide information about the ordinal trends.
-
-\textbf{d)}
-
-\begin{verbatim}
-. corr weight_cat days_hospital [freq=count]
-(obs=825)
-
-             | weight~t days_h~l
--------------+------------------
-  weight_cat |   1.0000
-days_hospi~l |   0.1375   1.0000
-
-. di 824*(0.1375)^2
-15.57875
-
-. di 1-chi2(1, 15.579)
-.00007913
-
-. 
-end of do-file
-
-There is a linear association between weight categories and length of hospitalization (Ordinal Chi-Square test 15.58, df=1, p<0.001). The probability of hospitalization days increases with higher weight.
-
-\end{verbatim}
-
-
-\section*{Question 5}
-
-\textbf{a)}
-
-Let $\theta$ be the true odds ratio of of cancer control for surgery versus radiation therapy and let $\alpha=0.05$.
-
-$H_0: \theta = 1$, that the event of larynx cancer being controlled is independent of intervention type.
-
-$H_A: \theta > 1$, that there is a positive association between surgery and cancer control.
-
-\begin{verbatim}
-    . tabi 21 2 \ 15 3, exact
-
-           |          col
-       row |         1          2 |     Total
------------+----------------------+----------
-         1 |        21          2 |        23 
-         2 |        15          3 |        18 
------------+----------------------+----------
-     Total |        36          5 |        41 
-
-           Fisher's exact =                 0.638
-   1-sided Fisher's exact =                 0.381
-   
-\end{verbatim}
-
-Since $p=0.381 > .05$, we fail to reject the null hypothesis. There is insufficient evidence to warrant a judgement that surgery is positively associated with the controlling of cancer of the larynx, or that intervention type isn't independent of success regarding the controlling of cancer of the larynx in general.
-
-\textbf{b)}
-
-\begin{verbatim}
-    
-. gen obsp = hypergeometricp(41,36,23,21)
-
-. gen midp = .381 - obsp/2
-
-. di midp
-
-.24325743
-\end{verbatim}
-
-Thus, the mid p-value is approximately .243. This is still insufficient for rejecting the null hypothesis. The benefit of using mid p-values versus the ordinary ones is that it is less conservative. Exact tests, due to their discreteness, produce true Type I error rates that are more restrictive. Mid p-values help to correct for this and make exact p-values behave more like continuous ones.
-
-\textbf{c)}
-
-Assuming the margins are fixed and thus that the contingency table follows a hypergeometric distribution, since the alternative hypothesis is in the positive direction, we need to consider all of the values of cell $n_{11}$ that are at least as extreme in the positive direction as the one observed: 21. Thus, in addition to the observed count, $n_{11}$ can also be 22 and 23.  
-
-\section*{Question 6}
-
-This is an example of Simpson's paradox, not controlling for age level yields a bias in the estimate of death rate in each estate. In particular, this problem is known as confounding bias where the non-stratified estimate (unconditional marginal) is significantly different from the stratified estimate of the proportions (conditional marginal).
+\begin{table}[!h]
+\centering
+\begin{tabular}{lcccc} \toprule
+ & (1) & (2) & (3) & (4) \\
+ &&\multicolumn{3}{c}{Binomial} \\ \cmidrule(r){3-5} 
+VARIABLES & OLS & Heart Disease & Heart Disease & Heart Disease \\ \midrule
+Snoring & 0.02*** & 0.02*** & 0.40*** & 0.19*** \\
+ & (0.00) & (0.00) & (0.05) & (0.02) \\
+ & 0.02 - 0.02 & 0.01 - 0.03 & 0.30 - 0.50 & 0.14 - 0.23 \\ \\
+Constant & 0.02*** & 0.02*** & -3.87*** & -2.06*** \\
+ & (0.01) & (0.00) & (0.17) & (0.07) \\
+ & 0.01 - 0.03 & 0.01 - 0.02 & -4.19 - -3.54 & -2.20 - -1.92 \\
+ &  &  &  &  \\
+Observations & 2,484 & 2,484 & 2,484 & 2,484 \\
+Family & Gaussian & Binomail & Binomial & Binomial \\
+Link & Identity & Identity & Logit & Probit \\
+$ E[y|X] $ & $ X\hat\beta $ & $ X\hat\beta $ & $\mbox{Logit}^{-1}[X\hat\beta] $ & $\Phi^{-1}[X\hat\beta] $ \\
+$ P[Disease=1|X=0] $ & 0.02 & 0.02 & 0.02 & 0.02 \\
+$ P[Disease=1|X=5] $ & 0.12 & 0.12 & 0.13 & 0.13 \\
+ Risk Ratio & 6.94 & 6.73 & 6.46 & 6.66 \\ \bottomrule
+\multicolumn{5}{c}{ Standard errors in parentheses. 95\% confidence intervals shown below standard errors.} \\
+\multicolumn{5}{c}{ *** p$<$0.01, ** p$<$0.05, * p$<$0.1} \\
+\end{tabular}
+\end{table}
 
 \end{document}
