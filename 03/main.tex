@@ -27,30 +27,406 @@
 \maketitle
 
 \section*{Question 1}
+\textbf{a} The Stata code to manually enter the data is provided below.
+
+\begin{verbatim}
+*homework 3
+*input table 3.1
+*q 1a
+input snoring heartDisease freq
+0 1 24
+0 0 1355
+2 1 35
+2 0 603
+4 1 21
+4 0 192
+5 1 30
+5 0 224
+end
+
+*define labels
+
+label variable heartDisease "heart disease"
+label variable snoring "snoring"
+
+label define heartDiseasef 1 "Yes" 0 "No"
+label define snorf 0 "Never" 2 "Occasional" 4 "Nearly every night" 5 "every night"
+
+label value heartDisease heartDiseasef
+label value snoring snorf
+\end{verbatim}
+
+\textbf{b}
+ The output from the tab command matches the table from 3.1 upon visual inspection.
+\begin{verbatim}
+    tab snoring heartDisease [freq=freq]
+\end{verbatim}
+
+\textbf{c}
+\begin{itemize}
+    \item i: using the linear regression of heart disease on snoring using Gaussian family and identity function, the estimated slope was 0.02, and the intercept term was 0.02. Using the REG command the regression intercept was 0.01687, and the estimated slope was 0.020038.  These estimates are approximately equal.  Further, comparing the GLM with the binomial family, and identity link, the estimated slope was 0.019778, and intercept was 0.0172.  These three models have very similar estimates.
+    \item ii: Using the GLM with binomial family and link function, the estimated slope was 0.01978, or approximately 0.02, and the intercept was 0.0172 which was slightly larger intercept compared with linear regression.
+    \item iii: The logit probability model uses the binomial family and the logit as the link function.  The estimated change in logit(pi) with 1 unit change of snoring category is 0.397 $\sim 0.4$. and the predicted logit($\pi$) when snoring is never, is -3.87.
+    \item iv: Modeling heart disease regressed on the snoring categories using the Probit regression identified the estimated change in probit($\pi$) z-score for 1 unit change in snoring is 0.1877 or 0.19.  The predicted probit z-score when snoring is never category is -2.06.
+\end{itemize}
+
+\begin{verbatim}
+    
+*1c i  linear Reg
+reg heartDisease snoring [fweight=freq]
+
+*1c ii
+*linear GLM regression
+glm heartDisease snoring [fweight=freq], family(binomial) link(identity) 
+
+*1c ii logit
+glm heartDisease snoring [fweight=freq], family(binomial) link(logit) 
+
+*1c ii probit
+glm heartDisease snoring [fweight=freq], family(binomial) link(probit) 
+
+\end{verbatim}
+
+\textbf{d}
 
 \begin{table}[!h]
 \centering
-\begin{tabular}{lcccc} \toprule
+\begin{tabular}{p{.25\linewidth}*{4}{m{.14\linewidth}<\centering}} \toprule
  & (1) & (2) & (3) & (4) \\
  &&\multicolumn{3}{c}{Binomial} \\ \cmidrule(r){3-5} 
 VARIABLES & OLS & Heart Disease & Heart Disease & Heart Disease \\ \midrule
-Snoring & 0.02*** & 0.02*** & 0.40*** & 0.19*** \\
- & (0.00) & (0.00) & (0.05) & (0.02) \\
- & 0.02 - 0.02 & 0.01 - 0.03 & 0.30 - 0.50 & 0.14 - 0.23 \\ \\
-Constant & 0.02*** & 0.02*** & -3.87*** & -2.06*** \\
- & (0.01) & (0.00) & (0.17) & (0.07) \\
- & 0.01 - 0.03 & 0.01 - 0.02 & -4.19 - -3.54 & -2.20 - -1.92 \\
+Snoring & 0.020*** & 0.020*** & 0.397*** & 0.188*** \\
+ & (0.002) & (0.003) & (0.050) & (0.024) \\
+ & 0.015 - 0.025 & 0.014 - 0.025 & 0.299 - 0.495 & 0.141 - 0.234 \\
+ & (8.650) & (7.069) & (7.945) & (7.946) \\
+Constant & 0.017*** & 0.017*** & -3.866*** & -2.061*** \\
+ & (0.005) & (0.003) & (0.166) & (0.070) \\
+ & 0.007 - 0.027 & 0.011 - 0.024 & -4.192 - -3.540 & -2.199 - -1.922 \\
+ & (3.272) & (5.018) & (-23.261) & (-29.249) \\
  &  &  &  &  \\
 Observations & 2,484 & 2,484 & 2,484 & 2,484 \\
 Family & Gaussian & Binomail & Binomial & Binomial \\
 Link & Identity & Identity & Logit & Probit \\
 $ E[y|X] $ & $ X\hat\beta $ & $ X\hat\beta $ & $\mbox{Logit}^{-1}[X\hat\beta] $ & $\Phi^{-1}[X\hat\beta] $ \\
-$ P[Disease=1|X=0] $ & 0.02 & 0.02 & 0.02 & 0.02 \\
-$ P[Disease=1|X=5] $ & 0.12 & 0.12 & 0.13 & 0.13 \\
- Risk Ratio & 6.94 & 6.73 & 6.46 & 6.66 \\ \bottomrule
-\multicolumn{5}{c}{ Standard errors in parentheses. 95\% confidence intervals shown below standard errors.} \\
-\multicolumn{5}{c}{ *** p$<$0.01, ** p$<$0.05, * p$<$0.1} \\
+$ \Pr[\mbox{Disease}=1|X=0] $ & 0.02 & 0.02 & 0.02 & 0.02 \\
+$ \Pr[\mbox{Disease}=1|X=5] $ & 0.12 & 0.12 & 0.13 & 0.13 \\
+ Risk Ratio (Always/Never) & 6.94 & 6.73 & 6.46 & 6.66 \\\bottomrule
+\multicolumn{5}{p{.9\linewidth}}{ Standard errors in parentheses. 95\% confidence intervals shown below standard errors, and t-statistic right after that.} \\
+\multicolumn{5}{l}{ *** p$<$0.01, ** p$<$0.05, * p$<$0.1} \\
 \end{tabular}
 \end{table}
+
+
+ \subsection{Linear Regression}
+ For linear regression: 
+ \begin{itemize}
+     \item i: For linear regression, The heart disease response (Y=1 indicates the number with heart disease) is the dependent variable modeled as a Gaussian random normal variable family, with mean E(Y)$=\mu$, and variance (Var(Y)).  The link function is the identity.  \item ii: The intercept =0.0168 $(95\%CI: 0.0068, 0.027), p=0.001, and the estimated slope= 0.02 (95\% CI : 0.0155,0.025; p<0.0001).$
+     \item iii: equation: E(Y)= 0.0168+ 0.02*SnoringCat
+ and the interpretation: The linear probability of heart disease when all snoring categories are 0, or when a person never snores, is 0.017.  The estimated change of linear probability for heart disease (success) per change of snoring group is 0.02.
+ \item iv:  If a person never snores the estimated probability of heart disease is 0.0169 or approximately 0.02.
+ if a person occasionally snores the estimated probability of heart disease is 0.0569.
+ if a person snores nearly every night the estimated probability of heart disease is 0.097.
+ if a person snores every night the estimated probability of heart disease is 0.117.
+ The relative risk of heart disease comparing a person who snores every night compared to a person who never snores is 6.923.  The risk of heart disease among nightly snorers is 6.923 or( 6.94 after rounding) times as likely as those who never snore.
+ \end{itemize}
+
+\subsection{Linear Probability}
+ \begin{itemize}
+     \item i:   The heart disease response (Y=1 indicates heart disease) is the dependent variable modeled as a Binomial random variable family, with mean E(Y), and variance (Var(Y)).  The linear probability link function is the identity. 
+     \item ii:  The intercept =0.0172 $(95\%CI: 0.0105, 0.0239), p<0.001, and the estimated slope= 0.0198 (95\% CI : 0.0143,0.0252; p<0.001).$
+     \item iii:  equation: E(Y)= 0.0172+ 0.0198*SnoringCat interpretation: The linear probability of heart disease when all snoring categories are 0, or when a person never snores, is 0.0172.  The estimated change of linear probability for heart disease (success) given snoring group is 0.0198.
+ \item iv:  If a person never snores the estimated probability of heart disease is 0.0172.
+ if a person occasionally snores the estimated probability of heart disease is 0.0568.
+ if a person snores nearly every night the estimated probability of heart disease is 0.0964.
+ if a person snores every night the estimated probability of heart disease is 0.116. The relative risk of heart disease comparing a person who snores every night compared to a person who never snores is 6.734.  The risk of heart disease among nightly snorers is 6.734 times as likely as those who never snore.
+ \end{itemize}
+ 
+ \subsection{Logit Regression}
+ \begin{itemize}
+     \item i:   The heart disease response (Y=1 indicates heart disease) is the dependent variable modeled as a Binomial random variable family, with mean E(Y )= pi.  The linear probability link function is the logit function = logit(pi) = ln (pi / 1-pi). 
+     \item ii:  The intercept =-3.866 $(95\%CI: -4.19, -3.54), p<0.001, and the estimated slope= 0.397 (95\% CI : 0.299,0.495; p<0.001).$
+     \item iii:  equation: logit(E(Y))= -3.866+ 0.397*SnoringCat interpretation: The predicted logit( $pi_i)$ probability of heart disease when all snoring categories are 0, or when a person never snores, is -3.86 ( exp(-3.86)/(1+exp(-3.86)) = 0.021.  The estimated change of predicted log-odds for heart disease (success) given snoring group is 0.397.
+ \item iv: 1. If a person never snores the estimated probability of heart disease is 0.0205 (log-odds : -3.86).
+ if a person occasionally snores the estimated probability of heart disease is 0.0443 (log-odds: -3.066).
+ if a person snores nearly every night the estimated probability of heart disease is 0.093 (log-odds: -2.72).
+ if a person snores every night the estimated probability of heart disease is 0.132 (log-odds: -1.875).
+The relative risk of heart disease comparing a person who snores every night compared to a person who never snores is 6.439.  The risk of heart disease among nightly snorers is 6.439 times as likely as those who never snore.
+ \end{itemize}
+ 
+ \subsection{Probit Regression}
+  \begin{itemize}
+     \item i: The heart disease response (Y=1 indicates heart disease) is the dependent variable modeled as a Binomial random variable family, with mean E(Y )= pi.  The linear probability link function is the probit function that is the inverse CDF of standard normal variable.
+     \item ii: $The intercept =-2.061 (95\%CI: -2.198, -1.922), p<0.001, and the estimated slope= 0.1878 (95\% CI : 0.1415, 0.2341; p<0.001).$
+     \item iii:  equation:  E(Y)= Phi( -2.061+ 0.1878*SnoringCat). interpretation: The predicted probit( $pi_i)$ (Z-score) of heart disease when all snoring categories are 0, or when a person never snores, is -2.061 ( probit(-2.061) = 0.0197.  The estimated change of predicted probit(pi) Zscore for heart disease (success) given snoring group is 0.1878.
+ \item iv:  If a person never snores the estimated predicted probability of heart disease is 0.0197 (Zscore= -2.061).
+ if a person occasionally snores the estimated probability of heart disease is 0.046 (Zscore= -1.6854) .
+ if a person snores nearly every night the estimated probability of heart disease is 0.0952 (Zscore = -1.3098).
+ if a person snores every night the estimated probability of heart disease is 0.13099 (Zscore = -1.122).
+The relative risk of heart disease comparing a person who snores every night compared to a person who never snores is 6.649.  The risk of heart disease among nightly snorers is 6.649 times as likely as those who never snore. After rounding the OR is 6.66.
+ \end{itemize}
+ 
+ 
+\section*{Question 2}
+
+\textbf{a)}
+
+1 Test association between Age and High blood pressure. Age was centered by the mean for intercept interpretation.  \\
+$\Phi^{-1}[E(Y)]=-0.951+0.048*(Age cent)$
+Age is statistically significant associated with high blood pressure (p<0.0001). Predicted z value increases 0.048 (95\% CI: 0.040, 0.055) per year increase of age. The predicted z value is -0.951 at age 58.9.
+
+Stata code and output as follow:
+\begin{verbatim}
+
+. do "C:\Users\liding\AppData\Local\Temp\STD8570_000000.tmp"
+. /* Import dataset in STATA*/
+. import delimited "C:\Users\liding\Dropbox\Education\PhD\PM 511B Categorical and count data analysis\HW\HW01\vitals.csv", clear
+(8 vars, 2,326 obs)
+. * Creat BP category
+. generate hibp=sbp>140 if sbp!=.
+. generate BMI=703*(weight)/(height*height)
+(1 missing value generated)
+. generate overweight= BMI>=25 if BMI!=.
+(1 missing value generated)
+
+. label define bp 1 "SBP>140" 0 "SBP<=140"
+. label define over 1 "BMI>=25" 0 "BMI<25"
+. label value hibp bp
+. label value overweight over
+. /*2.a*/
+
+. glm hibp age, family(binomial) link(probit)
+
+Iteration 0:   log likelihood = -1047.4494  
+Iteration 1:   log likelihood = -1041.5439  
+Iteration 2:   log likelihood = -1041.5294  
+Iteration 3:   log likelihood = -1041.5294  
+
+Generalized linear models                         No. of obs      =      2,326
+Optimization     : ML                             Residual df     =      2,324
+                                                  Scale parameter =          1
+Deviance         =   2083.05885                   (1/df) Deviance =   .8963248
+Pearson          =  2339.452288                   (1/df) Pearson  =   1.006649
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = invnorm(u)              [Probit]
+
+                                                  AIC             =   .8972738
+Log likelihood   = -1041.529425                   BIC             =  -15932.37
+
+------------------------------------------------------------------------------
+             |                 OIM
+        hibp |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         age |   .0475203   .0035859    13.25   0.000     .0404921    .0545485
+       _cons |  -3.748493   .2224668   -16.85   0.000     -4.18452   -3.312466
+------------------------------------------------------------------------------
+
+. summarize age, detail
+
+                             AGE
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%           40             32
+ 5%           44             40
+10%           47             40       Obs               2,326
+25%           53             40       Sum of Wgt.       2,326
+
+50%           59                      Mean           58.87274
+                        Largest       Std. Dev.      9.123297
+75%           65             88
+90%           71             88       Variance       83.23455
+95%           75             88       Skewness       .1791229
+99%           81             88       Kurtosis       2.770797
+
+. egen age_mean=mean(age)
+
+. generate age_cent=age-age_mean
+
+
+. glm hibp age_cent, family(binomial) link(probit)
+
+Iteration 0:   log likelihood = -1047.4494  
+Iteration 1:   log likelihood = -1041.5439  
+Iteration 2:   log likelihood = -1041.5294  
+Iteration 3:   log likelihood = -1041.5294  
+
+Generalized linear models                         No. of obs      =      2,326
+Optimization     : ML                             Residual df     =      2,324
+                                                  Scale parameter =          1
+Deviance         =   2083.05885                   (1/df) Deviance =   .8963248
+Pearson          =  2339.452288                   (1/df) Pearson  =   1.006649
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = invnorm(u)              [Probit]
+
+                                                  AIC             =   .8972738
+Log likelihood   = -1041.529425                   BIC             =  -15932.37
+
+------------------------------------------------------------------------------
+             |                 OIM
+        hibp |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    age_cent |   .0475203   .0035859    13.25   0.000     .0404921    .0545485
+       _cons |  -.9508428   .0325198   -29.24   0.000     -1.01458   -.8871052
+------------------------------------------------------------------------------
+. 
+end of do-file
+
+\end{verbatim}
+
+2 Test association between weight and High blood pressure. Using weight category BMI < 25 as reference group.  \\
+$\Phi^{-1}[E(Y)]=-1.075+0.280*(overweight)$
+Weight is statistically significant associated with high blood pressure (p<0.0001). Predicted z value of patients BMI>=25 is 0.280 (95\% CI: 0.146, 0.415) higher compare to patients BMI<25 . Predicted z value of patients BMI < 25 is -1.075.
+
+Stata code and output as follow:
+\begin{verbatim}
+
+. glm hibp overweight, family(binomial) link(probit)
+
+Iteration 0:   log likelihood = -1128.8984  
+Iteration 1:   log likelihood =  -1128.047  
+Iteration 2:   log likelihood =  -1128.047  
+
+Generalized linear models                         No. of obs      =      2,325
+Optimization     : ML                             Residual df     =      2,323
+                                                  Scale parameter =          1
+Deviance         =  2256.093964                   (1/df) Deviance =   .9711984
+Pearson          =  2324.999945                   (1/df) Pearson  =   1.000861
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = invnorm(u)              [Probit]
+
+                                                  AIC             =   .9720834
+Log likelihood   = -1128.046982                   BIC             =  -15750.58
+
+------------------------------------------------------------------------------
+             |                 OIM
+        hibp |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  overweight |    .280101   .0685737     4.08   0.000      .145699     .414503
+       _cons |  -1.074897   .0590445   -18.20   0.000    -1.190622    -.959172
+------------------------------------------------------------------------------
+
+
+end of do-file
+
+\end{verbatim}
+
+\textbf{b)}
+Test association between High blood pressure and weight, age, with age centered at mean, weight category BMI < 25 as reference group.  \\
+$\Phi^{-1}[E(Y)]=-1.240+0.050*(agecent)+0.390*(overweight)$
+Both age and Weight are statistically significant associated with high blood pressure (both p<0.0001). Predicted z value increases 0.050 (95\% CI: 0.043, 0.057) per year increase of age. Predicted z value of patients BMI>=25 is 0.390 (95\% CI: 0.247, 0.533) higher compare to patients BMI<25 . Predicted z value of patients BMI < 25, and age 58.9 is -1.240.
+
+Stata code and output as follow:
+\begin{verbatim}
+
+. glm hibp age_cent overweight, family(binomial) link(probit)
+
+Iteration 0:   log likelihood = -1034.6755  
+Iteration 1:   log likelihood = -1026.5405  
+Iteration 2:   log likelihood =  -1026.514  
+Iteration 3:   log likelihood =  -1026.514  
+
+Generalized linear models                         No. of obs      =      2,325
+Optimization     : ML                             Residual df     =      2,322
+                                                  Scale parameter =          1
+Deviance         =  2053.027972                   (1/df) Deviance =   .8841636
+Pearson          =  2304.250278                   (1/df) Pearson  =   .9923558
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = invnorm(u)              [Probit]
+
+                                                  AIC             =   .8856034
+Log likelihood   = -1026.513986                   BIC             =   -15945.9
+
+------------------------------------------------------------------------------
+             |                 OIM
+        hibp |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    age_cent |   .0497737   .0036564    13.61   0.000     .0426072    .0569401
+  overweight |   .3896383   .0729415     5.34   0.000     .2466756     .532601
+       _cons |  -1.239736   .0646822   -19.17   0.000    -1.366511   -1.112961
+------------------------------------------------------------------------------
+
+. 
+
+end of do-file
+
+\end{verbatim}
+
+\textbf{c)}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l*{3}{p{.2\linewidth}}} \toprule
+ & (1) & (2) & (3) \\
+VARIABLES & High Blood Pressure (yes/no) & High Blood Pressure (yes/no) & High Blood Pressure (yes/no) \\ \midrule
+Age (mean centered) & 0.048*** &  & 0.050*** \\
+ & (0.004) &  & (0.004) \\
+ & 0.040 - 0.055 &  & 0.043 - 0.057 \\
+Overweight (yes/no) &  & 0.280*** & 0.390*** \\
+ &  & (0.069) & (0.073) \\
+ &  & 0.146 - 0.415 & 0.247 - 0.533 \\
+Constant & -0.951*** & -1.075*** & -1.240*** \\
+ & (0.033) & (0.059) & (0.065) \\
+ & -1.015 - -0.887 & -1.191 - -0.959 & -1.367 - -1.113 \\
+ &  &  &  \\
+ Observations & 2,326 & 2,325 & 2,325 \\ \hline
+\multicolumn{4}{p{.9\linewidth}}{ Standard errors in parentheses. 95\% confidence intervals shown below standard errors.} \\
+\multicolumn{4}{l}{ *** p$<$0.01, ** p$<$0.05, * p$<$0.1} \\
+\end{tabular}
+
+
+\end{table}
+
+There is a 39.1\% change of weight estimation with and without adjusting for patients age. Also find statistical association between age and weight (Mean age 59.8 (BMI<25) vs 58.5, p=0.001), so age is a confounder of weight for high blood pressure.
+
+\begin{verbatim}
+
+. ttest age,by(overweight)
+
+Two-sample t test with equal variances
+------------------------------------------------------------------------------
+   Group |     Obs        Mean    Std. Err.   Std. Dev.   [95% Conf. Interval]
+---------+--------------------------------------------------------------------
+  BMI<25 |     694      59.817    .3593053    9.465496    59.11155    60.52246
+ BMI>=25 |   1,631    58.47272    .2215926    8.949159    58.03808    58.90735
+---------+--------------------------------------------------------------------
+combined |   2,325    58.87398     .189245    9.125065    58.50287    59.24509
+---------+--------------------------------------------------------------------
+    diff |            1.344287    .4127097                .5349689    2.153605
+------------------------------------------------------------------------------
+    diff = mean(BMI<25) - mean(BMI>=25)                           t =   3.2572
+Ho: diff = 0                                     degrees of freedom =     2323
+
+    Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = 0.9994         Pr(|T| > |t|) = 0.0011          Pr(T > t) = 0.0006
+. 
+end of do-file
+
+
+\end{verbatim}
+
+
+\textbf{d)}
+
+A total of 2326 patients were recruited for study of variables associated with blood pressure higher than 140 mmHg. Independent variables considered including age and weight. Patient's weight was defined as a binary variable with BMI>=25 as overweight. 1 patient had missing weight data. 1631 (70.2\%) patients were overweight. Age was used as a continuous variable, and centered at the mean, 58.9 years old. Probit regression was used for testing association between age, weight and high blood pressure, using 2325 patients data. \\
+Both age and Weight are statistically significant associated with high blood pressure (both p<0.0001). Age is a confounder of weight for high blood pressure. Predicted z value increases 0.050 (95\% CI: 0.043, 0.057) per year increase of age. Predicted z value of patients BMI>=25 is 0.390 (95\% CI: 0.247, 0.533) higher compare to patients BMI<25 . Predicted z value of patients BMI < 25, and age 58.9 is -1.240.
+
+\textbf{e)}
+
+i. $\Phi^{-1}[E(Y)]=-1.240+0.050*(agecent)+0.390*(overweight)$ \\
+=-1.240+0.050*(70-58.9)+0.390*(1) \\
+=-0.295 \\
+When Z=-0.295, P=0.384 (Code: di normal(-0.295)) \\
+The predicted probability of blood pressure higher than 140 mmHg is 38.4\% when patient is 70 years old and BMI larger or equal than 25.
+
+ii. $\Phi^{-1}[E(Y)]=-1.240+0.050*(agecent)+0.390*(overweight)$ \\
+=-1.240+0.050*(50-58.9)+0.390*(0) \\
+=-1.685 \\
+When Z=-1.685, P=0.046 (Code: di normal(-1.685)) \\
+The predicted probability of blood pressure higher than 140 mmHg is 4.6\% when patient is 50 years old and BMI less than 25.
+
+
 
 \end{document}
