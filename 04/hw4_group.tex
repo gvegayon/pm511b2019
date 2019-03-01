@@ -6,6 +6,10 @@
 % This package allows for automatic conversion of eps figures to pdf
 \usepackage{graphics}
 \usepackage{epstopdf} 
+\graphicspath{ {.}{04/} }
+%\DeclareGraphicsExtensions{.pdf,.eps,.png}
+
+
 
 \usepackage{amsmath, amssymb}
 \usepackage[margin=1in]{geometry}
@@ -700,9 +704,12 @@ outreg2 using part3.tex, append stats(coef se ci tstat) $outregopts ///
  
   \begin{enumerate}
     \item Are there any problematic observations?
+    
+    From figures and tables, we can see there are 6 covariates patterns total 153 patients had delta chi square larger than 4. , 
+    
     \begin{figure}
     \centering
-    \includegraphics[width=.8\linewidht]{04/part4_Deltachisq_p_.eps}
+    \includegraphics[width=.8\linewidth]{04/part4_Deltachisq_p_.eps}
     \end{figure}
 
       STATA code for 4 plots
@@ -728,6 +735,44 @@ scatter delta_x2 p [w = dbeta], msymbol(circle_hollow) ///
 	ytitle("Delta chi-square") xtitle("Predicted probability of SBP>140") ///
 	yline(4) ttext(4 -0.05 "y=4")
 graph export part4_Deltachisq_p_beta_.eps, replace
+
+
+. table age overweight if delta_x2>=4, contents(freq)
+
+----------------------------
+          |    overweight   
+      AGE |  BMI<25  BMI>=25
+----------+-----------------
+       32 |                1
+       49 |               33
+       55 |               79
+       67 |      16         
+       73 |      12         
+       84 |                2
+----------------------------
+
+. 
+end of do-file
+
+. table age overweight if delta_dev>=4, contents(freq)
+
+----------------------------
+          |    overweight   
+      AGE |  BMI<25  BMI>=25
+----------+-----------------
+       32 |                1
+       46 |               30
+       49 |               33
+       54 |      33         
+       67 |      16         
+       73 |      12         
+       84 |                2
+----------------------------
+
+. 
+end of do-file
+
+
     \end{verbatim}
       
       
