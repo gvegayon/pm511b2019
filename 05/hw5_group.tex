@@ -1,0 +1,246 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage{tabularx, booktabs}
+
+% This package allows for automatic conversion of eps figures to pdf
+\usepackage{graphics}
+\usepackage{epstopdf} 
+\graphicspath{ {.}{04/} }
+%\DeclareGraphicsExtensions{.pdf,.eps,.png}
+
+
+
+\usepackage{amsmath, amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% To set the enumeration method
+\usepackage[shortlabels]{enumitem}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+
+\title{PM511 b: Group 7 Homework Assignment 4}
+\author{Group 7}
+\date{Due: Feb 29, 2019}
+
+\begin{document}
+
+% We use this command to change the font of the entire document. We can take it out if you want :)
+\fontfamily{lmss}\selectfont
+
+\maketitle
+
+\section{Question 1}
+
+\textbf{Preamble:} Before replying the data and code to import it follows
+
+
+
+\begin{verbatim}[table6-17.csv]
+therapy,gender,response,n
+Sequential,Male,"Progressive Disease",28
+Sequential,Male,"No Change",45
+Sequential,Male,"Partial Remission",29
+Sequential,Male,"Complete Remission",26
+Sequential,Female,"Progressive Disease",4
+Sequential,Female,"No Change",12
+Sequential,Female,"Partial Remission",5
+Sequential,Female,"Complete Remission",2
+Alternating,Male,"Progressive Disease",41
+Alternating,Male,"No Change",44
+Alternating,Male,"Partial Remission",20
+Alternating,Male,"Complete Remission",20
+Alternating,Female,"Progressive Disease",12
+Alternating,Female,"No Change",7
+Alternating,Female,"Partial Remission",3
+Alternating,Female,"Complete Remission",1
+\end{verbatim}
+
+\begin{verbatim}[stata code]
+set more off
+set trace off
+clear all
+
+// Reading the data in
+import delimited using assignments/05/table6-17.csv, delimiter(",")
+
+gen response2 = .
+replace response2 = 1 if response ==  "Progressive Disease"
+replace response2 = 2 if response ==  "No Change"
+replace response2 = 3 if response ==  "Partial Remission"
+replace response2 = 4 if response ==  "Complete Remission"
+
+lab define responselbl  ///
+1 "Progressive Disease" 2 "No Change" 3 "Partial Remission" ///
+4 "Complete Remission"
+lab val response2 responselbl
+drop response
+rename response2 response
+
+gen alternating = therapy == "Alternating"
+lab def alternatinglbl 1 "Yes (Alternating)" 0 "No (Sequential)"
+lab val alternating alternatinglbl
+
+gen female = gender == "Female"
+lab def femalelbl 0 "No (Male)" 1 "Yes (Female)"
+lab val female femalelbl
+
+save assignments/05/table6-17.dta, replace
+\end{verbatim}
+
+Responses
+
+\begin{enumerate}[a.]
+\item Modeling the response as an unordered multinomial logistic regression
+
+\begin{verbatim}
+. mlogit response alternating female [fw = n], base(1) rrr
+
+Iteration 0:   log likelihood = -399.98398  
+Iteration 1:   log likelihood = -393.17752  
+Iteration 2:   log likelihood = -393.01823  
+Iteration 3:   log likelihood = -393.01778  
+Iteration 4:   log likelihood = -393.01778  
+
+Multinomial logistic regression                   Number of obs   =        299
+                                                  LR chi2(6)      =      13.93
+                                                  Prob > chi2     =     0.0304
+Log likelihood = -393.01778                       Pseudo R2       =     0.0174
+
+-------------------------------------------------------------------------------------
+           response |        RRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+--------------------+----------------------------------------------------------------
+Progressive_Disease |  (base outcome)
+--------------------+----------------------------------------------------------------
+No_Change           |
+        alternating |    .539857   .1595096    -2.09   0.037     .3025362    .9633413
+             female |   .9137244   .3459634    -0.24   0.812     .4350356    1.919135
+              _cons |   1.811411   .4203604     2.56   0.010     1.149437    2.854624
+--------------------+----------------------------------------------------------------
+Partial_Remission   |
+        alternating |   .4074324   .1430643    -2.56   0.011     .2047236    .8108551
+             female |   .6963934   .3322966    -0.76   0.448     .2733308    1.774274
+              _cons |   1.128631   .2919527     0.47   0.640     .6797738    1.873871
+--------------------+----------------------------------------------------------------
+Complete_Remission  |
+        alternating |   .4499522   .1654803    -2.17   0.030     .2188353    .9251567
+             female |   .2785116   .1839689    -1.94   0.053     .0763112    1.016479
+              _cons |   1.016546   .2730411     0.06   0.951     .6004782    1.720906
+-------------------------------------------------------------------------------------
+\end{verbatim}
+
+In this case, the treatment, alternating vs sequential, has a significant effect in all three outcomes at the 5\% level (with respect to the baseline, which is, Progressive Disease), in particular, we see that 
+
+\begin{itemize}
+	\item \textbf{No Change} has a RRR of 0.54 (CI: [.30, .96], p-value = 0.04), so alternating treatment yields a higher chance of 
+	\item \textbf{Partial Remission}
+	\item \textbf{Complete Remission}
+\end{itemize}
+
+\item This question has two parts:
+
+\begin{enumerate}[i.]
+	\item 1
+	
+\begin{verbatim}
+. constraint 1 [Partial_Remission]:alternating = [Complete_Remission]:alternating
+. mlogit response alternating female [fw = n], base(1) constraint(1) rrr
+
+Iteration 0:   log likelihood = -399.98398  
+Iteration 1:   log likelihood = -393.21683  
+Iteration 2:   log likelihood =  -393.0497  
+Iteration 3:   log likelihood = -393.04918  
+Iteration 4:   log likelihood = -393.04918  
+
+Multinomial logistic regression                   Number of obs   =        299
+                                                  Wald chi2(5)    =      12.39
+Log likelihood = -393.04918                       Prob > chi2     =     0.0298
+
+( 1)  [Partial_Remission]alternating - [Complete_Remission]alternating = 0
+-------------------------------------------------------------------------------------
+           response |        RRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+--------------------+----------------------------------------------------------------
+Progressive_Disease |  (base outcome)
+--------------------+----------------------------------------------------------------
+No_Change           |
+        alternating |   .5398146   .1594993    -2.09   0.037       .30251    .9632734
+             female |   .9129831   .3456741    -0.24   0.810     .4346908    1.917543
+              _cons |   1.811757   .4205349     2.56   0.010     1.149539     2.85546
+--------------------+----------------------------------------------------------------
+Partial_Remission   |
+        alternating |   .4264608   .1277961    -2.84   0.004     .2370294    .7672837
+             female |    .695995   .3317346    -0.76   0.447     .2734607    1.771403
+              _cons |   1.107906   .2756531     0.41   0.680     .6803292    1.804207
+--------------------+----------------------------------------------------------------
+Complete_Remission  |
+        alternating |   .4264608   .1277961    -2.84   0.004     .2370294    .7672837
+             female |   .2780198   .1837548    -1.94   0.053     .0761169    1.015477
+              _cons |   1.040075   .2615435     0.16   0.876     .6353547    1.702601
+-------------------------------------------------------------------------------------
+
+. lrtest part1a
+
+Likelihood-ratio test                                 LR chi2(1)  =      0.06
+(Assumption: . nested in part1a)                      Prob > chi2 =    0.8021
+
+\end{verbatim}
+	
+	In this case we say
+	
+	\item 2
+	
+\begin{verbatim}
+. constraint 2 [Partial_Remission]:female = [Complete_Remission]:female
+. mlogit response alternating female [fw = n], base(1) constraint(2) rrr
+
+Iteration 0:   log likelihood = -399.98398  
+Iteration 1:   log likelihood = -393.98465  
+Iteration 2:   log likelihood = -393.93946  
+Iteration 3:   log likelihood = -393.93945  
+
+Multinomial logistic regression                   Number of obs   =        299
+                                                  Wald chi2(5)    =      11.47
+Log likelihood = -393.93945                       Prob > chi2     =     0.0429
+
+( 1)  [Partial_Remission]female - [Complete_Remission]female = 0
+-------------------------------------------------------------------------------------
+           response |        RRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+--------------------+----------------------------------------------------------------
+Progressive_Disease |  (base outcome)
+--------------------+----------------------------------------------------------------
+No_Change           |
+        alternating |   .5398146   .1594993    -2.09   0.037       .30251    .9632734
+             female |   .9129831   .3456741    -0.24   0.810     .4346908    1.917543
+              _cons |   1.811757   .4205349     2.56   0.010     1.149539     2.85546
+--------------------+----------------------------------------------------------------
+Partial_Remission   |
+        alternating |   .4065061   .1430497    -2.56   0.011     .2039524    .8102243
+             female |   .4936071   .2112769    -1.65   0.099     .2133263    1.142137
+              _cons |   1.177925    .301017     0.64   0.522      .713829    1.943752
+--------------------+----------------------------------------------------------------
+Complete_Remission  |
+        alternating |   .4506916   .1651508    -2.17   0.030      .219769    .9242564
+             female |   .4936071   .2112769    -1.65   0.099     .2133263    1.142137
+              _cons |   .9700556    .259583    -0.11   0.910      .574141    1.638984
+-------------------------------------------------------------------------------------
+
+. lrtest part1a
+
+Likelihood-ratio test                                 LR chi2(1)  =      1.84
+(Assumption: . nested in part1a)                      Prob > chi2 =    0.1746
+\end{verbatim}
+
+The LRT in this case tells that there is no significant model between the two specifications, which means, that the un-constrained model, where we are assuming different effects of gender on Partial vs Complete Remission, is not providing more information that the baseline is.
+	
+\end{enumerate}
+
+
+\end{enumerate}
+
+\section{Question 2}
+
+\end{document}
