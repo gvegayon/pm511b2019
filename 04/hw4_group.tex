@@ -229,10 +229,170 @@ Where the first column is age centered at 60, hence row 1 is of a 70 years old i
   Explore the relationship between high blood pressure and age more carefully.  Specifically, is the relationship linear on the logit scale?  Evaluate the relationship using:
 \begin{enumerate}[a.]
     \item  Grouped smooth with quartiles 
+    
+    \textit{Solution}: Stata code
+    
+\begin{verbatim}
+sort age
+egen age_quant = cut(age), group(4) lab
+lab var age_quant "Age quantile"
+
+logit hibp i.age_quant
+mat def betas = e(b)
+bysort age: egen age_midpoint = mean(age_quant)
+lab var age_mid "Midpoint of the Age quantile"
+
+gen beta = .
+forval i = 1/4 {
+    replace beta = betas[1, `i'] if age_quant == (`i' - 1)
+}
+// replace beta = 0 if beta == .
+lab var beta "Logit coefficient"
+
+twoway scatter beta age_midpoint || line beta age_midpoint
+graph export part2_hibp_vs_age_quant.eps, replace
+\end{verbatim}
+    
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=.7\linewidth]{04/part2_hibp_vs_age_quant.eps}
+    \end{figure}
+    
+As we can see, there doesnot appear to be any major issues with linearity on the logit scale.
+    
     \item Lowess smoothing
-    \item Fractional polynomials.   What is the best one-term and the best two-term model?   Are these models better than the linear model (give p-values)? 
-    \item Based on all of your explorations, how would you choose to model the relationship between high blood pressure and age?  Explain your answer, using the information you obtained from each of the 3 approaches (2a-2c).  
-\end{enumerate}
+    
+    \textit{Solution}: Stata code:
+    
+\begin{verbatim}
+lowess hibp age, addplot(scatter hibp age) legend(off) logit
+graph export part2_hibp_vs_age_lowess.eps, replace
+\end{verbatim}
+    
+    \begin{figure}{!h}
+        \centering
+        \includegraphics[width=.7\linewidth]{04/part2_hibp_vs_age_lowess.eps}
+    \end{figure}
+    
+Thus, although there appears to be some issues with linearity in the lower extreme observations due to a possible outlier, altogether, there does not appear to be any other remarkable deviations from linearity.
+    
+    \pagebreak
+    
+    \item Fractional polynomials.   What is the best one-term and the best two-term model?Are these models better than the linear model (give p-values)? 
+    
+    The linear term is not significantly different from the 2-term model (p=0.11), neither is the 1-term model (p=0.22).  The linear term is not different from the 1-term model (p=0.084).
+     \begin{verbatim}
+         fp <AGE>, dimension(2) replace: logit hbp <AGE>
+	*the linear term p-value =0.111 does not differ from 2-term
+	
+	*1-term model.
+	fp <AGE>, dimension(1) replace: logit hbp <AGE>
+ *the 1-term is -0.5, 8.89+-79.99*(1/sqrt(AGE)), and the linear model is not significantly
+ *different p=0.084.
+	
+	*2-term model
+	*4.12 + 64956.65*(1/AGE)^2 + -20787.54*(1/AGE)^2*Ln(AGE)
+*the linear model is not different from 2-term, p=0.22
+
+
+. do "C:\Users\SHANEG~1\AppData\Local\Temp\STDc4_000000.tmp"
+
+. fp <age>, replace: logit hibp <age>
+(fitting 44 models)
+(....10%....20%....30%....40%....50%....60%....70%....80%....90%...
+> .100%)
+
+Fractional polynomial comparisons:
+-------------------------------------------------------------------
+> -
+         age |   df    Deviance   Dev. dif.   P(*)   Powers
+-------------+-----------------------------------------------------
+> -
+     omitted |    0   2273.637    194.694    0.000               
+      linear |    1   2084.963      6.020    0.111   1           
+       m = 1 |    2   2081.969      3.026    0.220   -.5         
+       m = 2 |    4   2078.943      0.000       --   -2 -2       
+-------------------------------------------------------------------
+> -
+(*) P = sig. level of model with m = 2 based on chi^2 of
+    dev. dif.
+
+Logistic regression                             Number of obs     =
+>       2,326
+                                                LR chi2(2)        =
+>      194.69
+                                                Prob > chi2       =
+>      0.0000
+Log likelihood = -1039.4716                     Pseudo R2         =
+>      0.0856
+
+-------------------------------------------------------------------
+> -----------
+        hibp |      Coef.   Std. Err.      z    P>|z|     [95% Conf
+> . Interval]
+-------------+-----------------------------------------------------
+> -----------
+       age_1 |   64956.65   22327.93     2.91   0.004      21194.7 
+>    108718.6
+       age_2 |  -20787.54   6305.745    -3.30   0.001    -33146.57 
+>   -8428.504
+       _cons |   4.118223   .9536049     4.32   0.000     2.249191 
+>    5.987254
+-------------------------------------------------------------------
+> -----------
+
+. fp <age>, dim(1) replace: logit hibp <age>
+(fitting 8 models)
+(....10%....20%....30%....40%....50%....60%....70%....80%....90%...
+> .100%)
+
+Fractional polynomial comparisons:
+-------------------------------------------------------------------
+> -
+         age |   df    Deviance   Dev. dif.   P(*)   Powers
+-------------+-----------------------------------------------------
+> -
+     omitted |    0   2273.637    191.669    0.000               
+      linear |    1   2084.963      2.994    0.084   1           
+       m = 1 |    2   2081.969      0.000       --   -.5         
+-------------------------------------------------------------------
+> -
+(*) P = sig. level of model with m = 1 based on chi^2 of
+    dev. dif.
+
+Logistic regression                             Number of obs     =
+>       2,326
+                                                LR chi2(1)        =
+>      191.67
+                                                Prob > chi2       =
+>      0.0000
+Log likelihood = -1040.9844                     Pseudo R2         =
+>      0.0843
+
+-------------------------------------------------------------------
+> -----------
+        hibp |      Coef.   Std. Err.      z    P>|z|     [95% Conf
+> . Interval]
+-------------+-----------------------------------------------------
+> -----------
+       age_1 |  -79.98538   6.354465   -12.59   0.000    -92.43991 
+>   -67.53086
+       _cons |   8.887089   .8090906    10.98   0.000     7.301301 
+>    10.47288
+-------------------------------------------------------------------
+> -----------
+
+. 
+end of do-file
+
+
+	     \end{verbatim}
+    
+    \item d: Based on all of your explorations, how would you choose to model the relationship between high blood pressure and age?  Explain your answer, using the information you obtained from each of the 3 approaches (2a-2c). 
+    
+     The 1-term model has the power =-0.5, and the equation is 8.89-79.99*(1/$\sqrt{AGE}$); the linear model was not statistically significantly different (p=0.084).
+     The 2-term model has power -2,-2, and the equation is 4.12+64956.65*($1/AGE)^{2} - 20787.54*(1/AGE)^{2}Ln(AGE)$. Pertinently, according to this test, the linear term was also not statistically significantly different from the 2-term model (p=.111). Moreover, as seen in the prior parts, both the grouped smooth and lowess plots failed to indicate any remarkable departure from linearity on the logit scale. Thus, we will choose the linear model because the models with power terms do not demonstrate a statistically significant difference from the linear model, indicating that they would not offer an improvement, the linearity of the basic linear model on the logit scale is cogently substantiated, and it is most interpret-able.
+  \end{enumerate}
 
 \section{Question 3} 
 Now use the logistic regression model above to model age in two ways: (1) mean-centered age as a continuous variable; (2) Age categories $(<45, 45-49, 50-54, 55-59, 60-64, 65-69, 70-74, 75-79, and \geq 80). $
@@ -534,7 +694,7 @@ end of do-file
     
     \item   Obtain the AIC and BIC for each model and compare.
     
-    \textit{Solution}: The code and output for the AIC and BIC for both models are in the last section's output. For the model with age as a continuous predictor, AIC was 2061.37 and BIC was 2078.62. These values were 2073.43 and 2130.94 respectively for the model with categorical age. Both statistics are lower for the model with age treated
+    \textit{Solution}: The code and output for the AIC and BIC for both models are in the last section's output. For the model with age as a continuous predictor, AIC was 2061.37 and BIC was 2078.62. These values were 2073.43 and 2130.94 respectively for the model with categorical age. Both statistics are lower for the model with age treated as a categorical variable.
     
     \item Which model do you prefer and why?  
     
@@ -542,7 +702,7 @@ end of do-file
 
 
 \begin{table}[!h]
-\caption{Logistical Models} 
+\caption{Logistic Regression Models} 
 \begin{center}
 \begin{tabular}{lcc} \hline
  & (1) & (2) \\
@@ -646,7 +806,7 @@ gen age_cat = 0 + ///
 
 local labs = `"lab def agecatlab 0 "< 45""'
 forval i = 1/7 {
-	local labs = `"`labs' `i' "< `=`i'*5 + 45'""'
+    local labs = `"`labs' `i' "< `=`i'*5 + 45'""'
 }
 local labs = `"`labs' 8 ">= 80""'
 
@@ -705,35 +865,64 @@ outreg2 using part3.tex, append stats(coef se ci tstat) $outregopts ///
   \begin{enumerate}
     \item Are there any problematic observations?
     
-    From figures and tables, we can see there are 6 covariates patterns total 153 patients had delta chi square larger than 4. , 
+    \textit{Solution}: From figures and tables, we can see there are 6 covariates patterns of 153 patients had delta chi square larger than 4, which include 1 pattern 1 patient larger than 40. If deleting these patients would decrease the Pearson $\chi^2$ Goodness of Fit. \par
+    A total of 7 covariates patterns of 127 patients had delta deviance larger than 4. Deleting these patients would have higher change in the deviance residuals. \par
+    All patients delta beta were below 0.3, which indicates deleting any observations with same covariate pattern are not likely to change much of the coefficients. \par
+    From Delta $\chi^2$ predicted probability proportional to delta beta figure, a few patterns with high probability change of beta had delta chi-square above 4. \par
+    In general, consider there are a few covariates pattern that maybe problematic and need further exploration.
+    
+    % This is equivalent to make macros in latex
+    \def\figwidths{.8\linewidth}
+    
     
     \begin{figure}
     \centering
-    \includegraphics[width=.8\linewidth]{04/part4_Deltachisq_p_.eps}
+    \includegraphics[width=\figwidths]{04/part4_Deltachisq_p_.eps}
+    \end{figure} 
+    
+    \begin{figure}
+    \centering
+    \includegraphics[width=\figwidths]{04/part4_Deltadevi_p_.eps}
+    \end{figure} 
+    
+    \begin{figure}
+    \centering
+    \includegraphics[width=\figwidths]{04/part4_Deltabeta_p_.eps}
+    \end{figure} 
+
+    \begin{figure}
+    \centering
+    \includegraphics[width=\figwidths]{04/part4_Deltachisq_p_beta_.eps}
     \end{figure}
+
+% This will make the page to avoid mixing figures and code
+\pagebreak
 
       STATA code for 4 plots
       \begin{verbatim}
 * plot 1
 scatter delta_x2 p, title("Delta chi-square vs. predicted probabilities") ///
-	ytitle("Delta chi-square") xtitle("Predicted probability of SBP>140") ///
-	yline(4) ttext(4 -0.05 "y=4")
+    ytitle("Delta chi-square") xtitle("Predicted probability of SBP>140") ///
+    yline(4) ttext(4 -0.05 "y=4")
 graph export part4_Deltachisq_p_.eps, replace
+
 * plot 2
 scatter delta_dev p, title("Delta deviance vs predicted probabilities") ///
-	ytitle("Delta deviance") xtitle("Predicted probability of SBP>140") ///
-	yline(4) ttext(4.3 0.01 "y=4")
+    ytitle("Delta deviance") xtitle("Predicted probability of SBP>140") ///
+    yline(4) ttext(4.3 0.01 "y=4")
 graph export part4_Deltadevi_p_.eps, replace
+
 * plot 3 
 scatter dbeta p, title("Delta beta vs predicted probabilities") ///
-	ytitle("Delta beta") xtitle("Predicted probability of SBP>140") ///
-	yline(1) ttext(4.3 0.01 "y=1.0")
+    ytitle("Delta beta") xtitle("Predicted probability of SBP>140") ///
+    yline(1) ttext(4.3 0.01 "y=1.0")
 graph export part4_Deltabeta_p_.eps, replace
+
 * plot 4
 scatter delta_x2 p [w = dbeta], msymbol(circle_hollow) ///
-	title("Delta chi-square vs. predicted probabilities" "proportional to delta beta") ///
-	ytitle("Delta chi-square") xtitle("Predicted probability of SBP>140") ///
-	yline(4) ttext(4 -0.05 "y=4")
+    title("Delta chi-square vs. predicted probabilities" "proportional to delta beta") ///
+    ytitle("Delta chi-square") xtitle("Predicted probability of SBP>140") ///
+    yline(4) ttext(4 -0.05 "y=4")
 graph export part4_Deltachisq_p_beta_.eps, replace
 
 
@@ -777,6 +966,9 @@ end of do-file
       
       
       \item If you did find possibly problematic observations, describe what your next steps in model fitting might be.
+      
+      \textit{Solution}: First step is to extract all patients information from the model with possible problematic covariates pattern, and confirm if there are any data entry problem. Next, we can do sensitivity analysis excluding patients with each covariate pattern, and compare beta term, goodness of fit, Hosmer Lemeshow goodness of fit with original model. If we have similar results as before, we gain more confidence on reporting the results we find. It's also possible that we need to add in other covariates, or interaction term to have a better model fit.
+      
   \end{enumerate}
 
 \end{document}
