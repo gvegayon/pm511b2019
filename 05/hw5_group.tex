@@ -23,9 +23,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 
-\title{PM511 b: Group 7 Homework Assignment 4}
+\title{PM511 b: Group 7 Homework Assignment 5}
 \author{Group 7}
-\date{Due: Feb 29, 2019}
+\date{Due: April 5, 2019}
 
 \begin{document}
 
@@ -98,13 +98,13 @@ Responses
 \item Modeling the response as an unordered multinomial logistic regression
 
 \begin{verbatim}
-. mlogit response alternating female [fw = n], base(1) rrr
+. mlogit response alternating female [fw = n], base(2) rrr
 
-Iteration 0:   log likelihood = -399.98398  
-Iteration 1:   log likelihood = -393.17752  
-Iteration 2:   log likelihood = -393.01823  
-Iteration 3:   log likelihood = -393.01778  
-Iteration 4:   log likelihood = -393.01778  
+Iteration 0:   log likelihood = -399.98398
+Iteration 1:   log likelihood = -393.17752
+Iteration 2:   log likelihood = -393.01823
+Iteration 3:   log likelihood = -393.01778
+Iteration 4:   log likelihood = -393.01778
 
 Multinomial logistic regression                   Number of obs   =        299
                                                   LR chi2(6)      =      13.93
@@ -114,133 +114,313 @@ Log likelihood = -393.01778                       Pseudo R2       =     0.0174
 -------------------------------------------------------------------------------------
            response |        RRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
 --------------------+----------------------------------------------------------------
-Progressive_Disease |  (base outcome)
+Progressive_Disease |
+        alternating |   1.852342   .5473048     2.09   0.037     1.038054    3.305389
+             female |   1.094422    .414381     0.24   0.812      .521068    2.298663
+              _cons |   .5520558   .1281114    -2.56   0.010     .3503088    .8699912
 --------------------+----------------------------------------------------------------
-No_Change           |
-        alternating |    .539857   .1595096    -2.09   0.037     .3025362    .9633413
-             female |   .9137244   .3459634    -0.24   0.812     .4350356    1.919135
-              _cons |   1.811411   .4203604     2.56   0.010     1.149437    2.854624
+No_Change           |  (base outcome)
 --------------------+----------------------------------------------------------------
 Partial_Remission   |
-        alternating |   .4074324   .1430643    -2.56   0.011     .2047236    .8108551
-             female |   .6963934   .3322966    -0.76   0.448     .2733308    1.774274
-              _cons |   1.128631   .2919527     0.47   0.640     .6797738    1.873871
+        alternating |   .7547042   .2505257    -0.85   0.397     .3937482    1.446555
+             female |   .7621482   .3491006    -0.59   0.553     .3105618    1.870384
+              _cons |   .6230673   .1421512    -2.07   0.038     .3984149    .9743935
 --------------------+----------------------------------------------------------------
 Complete_Remission  |
-        alternating |   .4499522   .1654803    -2.17   0.030     .2188353    .9251567
-             female |   .2785116   .1839689    -1.94   0.053     .0763112    1.016479
-              _cons |   1.016546   .2730411     0.06   0.951     .6004782    1.720906
+        alternating |   .8334655   .2910053    -0.52   0.602     .4204262    1.652287
+             female |   .3048093    .197348    -1.84   0.067     .0856879    1.084268
+              _cons |   .5611903   .1340391    -2.42   0.016     .3514007    .8962265
 -------------------------------------------------------------------------------------
 \end{verbatim}
 
-In this case, the treatment, alternating vs sequential, has a significant effect in all three outcomes at the 5\% level (with respect to the baseline, which is, Progressive Disease), in particular, we see that 
+In this case, the treatment, alternating vs sequential, we see that it has significant effect at one of the three possible outcomes when estimating the model using "No change" as baseline comparision of the model, in particular, we observe:
 
 \begin{itemize}
-	\item \textbf{No Change} has a RRR of 0.54 (CI: [.30, .96], p-value = 0.04), so alternating treatment yields a higher chance of 
-	\item \textbf{Partial Remission}
-	\item \textbf{Complete Remission}
+	\item \textbf{Progressive Disease} The Relative Risk Ratio (abreviated RRR, $\exp{\beta}$) equals 1.85 with a 95\% confidence interval of [1.04, 3.30] (p-value of 0.04).
+	\item \textbf{Partial Remission} The RRR for alternating equals 0.75 with a 95\% confidence interval of [0.39, 1.44] (p-value of 0.40).
+	\item \textbf{Complete Remission} The RRR for alternating equals 0.83 with ad 95\% confidence interval of [0.42, 1.65] (p-value of 0.60.
 \end{itemize}
+
+In the case in which the treatment shows to be significant, everything else constant, the alternating therapy increases the chance of observing a progressive disease by an 85\% with respect to the baseline.
 
 \item This question has two parts:
 
 \begin{enumerate}[i.]
-	\item 1
-	
+	\item In the first part we create a constraint over the effect of the treatment in the partial remission and complete remission groups, assuming the treatment effect is the same between the two of them. To test whether assuming equal effects or not, we can conduct a Likelihood Ratio Test (LRT) comparing the un-constrained model (allowing treatment effect to vary between these two categories), vs the constrained model (not allowing equal effects on these two categories), the steps follow
 \begin{verbatim}
 . constraint 1 [Partial_Remission]:alternating = [Complete_Remission]:alternating
-. mlogit response alternating female [fw = n], base(1) constraint(1) rrr
-
-Iteration 0:   log likelihood = -399.98398  
-Iteration 1:   log likelihood = -393.21683  
-Iteration 2:   log likelihood =  -393.0497  
-Iteration 3:   log likelihood = -393.04918  
-Iteration 4:   log likelihood = -393.04918  
-
-Multinomial logistic regression                   Number of obs   =        299
-                                                  Wald chi2(5)    =      12.39
-Log likelihood = -393.04918                       Prob > chi2     =     0.0298
-
-( 1)  [Partial_Remission]alternating - [Complete_Remission]alternating = 0
--------------------------------------------------------------------------------------
-           response |        RRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
---------------------+----------------------------------------------------------------
-Progressive_Disease |  (base outcome)
---------------------+----------------------------------------------------------------
-No_Change           |
-        alternating |   .5398146   .1594993    -2.09   0.037       .30251    .9632734
-             female |   .9129831   .3456741    -0.24   0.810     .4346908    1.917543
-              _cons |   1.811757   .4205349     2.56   0.010     1.149539     2.85546
---------------------+----------------------------------------------------------------
-Partial_Remission   |
-        alternating |   .4264608   .1277961    -2.84   0.004     .2370294    .7672837
-             female |    .695995   .3317346    -0.76   0.447     .2734607    1.771403
-              _cons |   1.107906   .2756531     0.41   0.680     .6803292    1.804207
---------------------+----------------------------------------------------------------
-Complete_Remission  |
-        alternating |   .4264608   .1277961    -2.84   0.004     .2370294    .7672837
-             female |   .2780198   .1837548    -1.94   0.053     .0761169    1.015477
-              _cons |   1.040075   .2615435     0.16   0.876     .6353547    1.702601
--------------------------------------------------------------------------------------
-
+. qui: mlogit response alternating female [fw = n], base(2) constraint(1) rrr
 . lrtest part1a
 
 Likelihood-ratio test                                 LR chi2(1)  =      0.06
 (Assumption: . nested in part1a)                      Prob > chi2 =    0.8021
-
 \end{verbatim}
 	
-	In this case we say
+	As shown in the resulting output from Stata, the test statistic is a Chi-square with one degree of freedom (only a single parameter difference between the two models), equal to 0.06. In this case, the LRT fails to reject the null hypotheses with p-value equal to 0.80. So in this case, we don't see a significant difference between the two models, which in practice means that we could use the constrained model instead.
 	
-	\item 2
+	\item In the second part, we do a similar thing: creating a constraint using the \texttt{constraint} command, and estimate the model using the new constraint. Again, we compare the un-constraint model with the constrained model:
 	
 \begin{verbatim}
 . constraint 2 [Partial_Remission]:female = [Complete_Remission]:female
-. mlogit response alternating female [fw = n], base(1) constraint(2) rrr
-
-Iteration 0:   log likelihood = -399.98398  
-Iteration 1:   log likelihood = -393.98465  
-Iteration 2:   log likelihood = -393.93946  
-Iteration 3:   log likelihood = -393.93945  
-
-Multinomial logistic regression                   Number of obs   =        299
-                                                  Wald chi2(5)    =      11.47
-Log likelihood = -393.93945                       Prob > chi2     =     0.0429
-
-( 1)  [Partial_Remission]female - [Complete_Remission]female = 0
--------------------------------------------------------------------------------------
-           response |        RRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
---------------------+----------------------------------------------------------------
-Progressive_Disease |  (base outcome)
---------------------+----------------------------------------------------------------
-No_Change           |
-        alternating |   .5398146   .1594993    -2.09   0.037       .30251    .9632734
-             female |   .9129831   .3456741    -0.24   0.810     .4346908    1.917543
-              _cons |   1.811757   .4205349     2.56   0.010     1.149539     2.85546
---------------------+----------------------------------------------------------------
-Partial_Remission   |
-        alternating |   .4065061   .1430497    -2.56   0.011     .2039524    .8102243
-             female |   .4936071   .2112769    -1.65   0.099     .2133263    1.142137
-              _cons |   1.177925    .301017     0.64   0.522      .713829    1.943752
---------------------+----------------------------------------------------------------
-Complete_Remission  |
-        alternating |   .4506916   .1651508    -2.17   0.030      .219769    .9242564
-             female |   .4936071   .2112769    -1.65   0.099     .2133263    1.142137
-              _cons |   .9700556    .259583    -0.11   0.910      .574141    1.638984
--------------------------------------------------------------------------------------
-
+. qui: mlogit response alternating female [fw = n], base(2) constraint(2) rrr
 . lrtest part1a
 
 Likelihood-ratio test                                 LR chi2(1)  =      1.84
 (Assumption: . nested in part1a)                      Prob > chi2 =    0.1746
 \end{verbatim}
 
-The LRT in this case tells that there is no significant model between the two specifications, which means, that the un-constrained model, where we are assuming different effects of gender on Partial vs Complete Remission, is not providing more information that the baseline is.
+The LRT, which has an statistic equal to 1.85 and a p-value of 0.17, supports the hypothesis that there is no significant difference between the two models. This implies that, conditional on the data we have, We can assume that separating the gender effect between Partial Remission and Complete Remission does not inform our model in statistical terms.
 	
 \end{enumerate}
 
 
 \end{enumerate}
 
+\begin{enumerate}[c.]
+\item Adding an interaction term to test for effects and significance
+
+\begin{verbatim}
+. mlogit response alternating##female [fw = n], base(2) rrr
+
+Iteration 0:   log likelihood = -399.98398  
+Iteration 1:   log likelihood =  -391.9981  
+Iteration 2:   log likelihood = -391.74736  
+Iteration 3:   log likelihood = -391.74448  
+Iteration 4:   log likelihood = -391.74448  
+
+Multinomial logistic regression                   Number of obs   =        299
+                                                  LR chi2(9)      =      16.48
+                                                  Prob > chi2     =     0.0575
+Log likelihood = -391.74448                       Pseudo R2       =     0.0206
+
+-------------------------------------------------------------------------------------------------
+                       response |        RRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+--------------------------------+----------------------------------------------------------------
+Progressive_Disease             |
+                    alternating |
+             Yes (Alternating)  |   1.497565   .4853913     1.25   0.213     .7934031    2.826685
+                                |
+                         female |
+                  Yes (Female)  |   .5357143   .3350977    -1.00   0.318     .1572148    1.825463
+                                |
+             alternating#female |
+Yes (Alternating)#Yes (Female)  |   3.434146   2.799573     1.51   0.130     .6948728    16.97197
+                                |
+                          _cons |   .6222222   .1497689    -1.97   0.049     .3882051    .9973091
+--------------------------------+----------------------------------------------------------------
+No_Change                       |  (base outcome)
+--------------------------------+----------------------------------------------------------------
+Partial_Remission               |
+                    alternating |
+             Yes (Alternating)  |   .7053292   .2537541    -0.97   0.332     .3484638    1.427664
+                                |
+                         female |
+                  Yes (Female)  |   .6465517   .3770224    -0.75   0.455     .2061787    2.027509
+                                |
+             alternating#female |
+Yes (Alternating)#Yes (Female)  |   1.458286   1.374937     0.40   0.689     .2297692    9.255363
+                                |
+                          _cons |   .6444444   .1534603    -1.85   0.065     .4041015    1.027733
+--------------------------------+----------------------------------------------------------------
+Complete_Remission              |
+                    alternating |
+             Yes (Alternating)  |   .7867133   .2873508    -0.66   0.511      .384513    1.609615
+                                |
+                         female |
+                  Yes (Female)  |   .2884615   .2314923    -1.55   0.121     .0598402    1.390538
+                                |
+             alternating#female |
+Yes (Alternating)#Yes (Female)  |   1.089527   1.485756     0.06   0.950     .0752452      15.776
+                                |
+                          _cons |   .5777778   .1423302    -2.23   0.026     .3565129    .9363678
+-------------------------------------------------------------------------------------------------
+\end{verbatim}
+
+\item
+\begin{verbatim}
+. lrtest base1
+
+Likelihood-ratio test                                 LR chi2(3)  =      2.55
+(Assumption: base1 nested in .)                       Prob > chi2 =    0.4669
+
+\end{verbatim}
+
+\end{enumerate}
+To investigate if the magnitude of treatment response differs by gender, we fit a therapy and gender interaction term to the model. Overall, the model was not statistically significant ($\chi^2_9 = 16.38: p = .058$). Progressive disease status was utilized as a baseline. Individuals receiving alternating therapy had .668 times the odds of experiencing no change in disease status versus those partaking in sequential therapy ($95\%\ CI: .354, 1.26: p =.213$). However, the effect was .959 times the odds for females ($\beta = .291, 95\%\ CI: .0589, 1.439: p =.13)$. Moreover, the odds of partial remission for individuals receiving alternating treatment was .47 times the odds of sequential therapy ($95\%\ CI: .224, .992: p = .048)$, an effect that was also influenced by gender, being .895 times the odds for females ($\beta = .425, 95 \%\ CI: .591, 3.05: p=.394$). Lastly, those receiving alternating therapy had .525 times the odds of complete remission than those receiving sequential therapy ($95\%\ CI: .247, 1.12: p= .095$). Being female raised this value to .842 times the odds ($\beta = .317, 95 \%\ CI: .02, 5.0: p =.415$). No interaction terms were statistically significant.
+
+
+\begin{enumerate}[d.]
+\item Likelihood Ratio Test
+\end{enumerate}
+
+\begin{verbatim}
+    
+. lrtest base1
+
+Likelihood-ratio test                                 LR chi2(3)  =      2.55
+(Assumption: base1 nested in .)                       Prob > chi2 =    0.4669
+
+\end{verbatim}
+
+We use a LRT to test the null hypothesis that the coefficients of the interaction terms are equal to zero. The LRT was not statistically significant ($\chi^2_3 = 2.55: p=.467$). Thus, there is insufficient evidence that gender modifies the effect of treatment on disease status. Thus, the interaction model does not provide a significantly better fit.
+
+
+\begin{enumerate}[e.]
+\item Summary
+\end{enumerate}
+
+A multinomial logistic regression model was utilized to explore the associations between the disease state of lung cancer as a dependent variable and therapy type and gender as independent predictors. The disease state of lung cancer was classified as "Progressive Disease," "No Change," "Partial Remission," and "Complete Remission," with the first category being treated as baseline. Therapy was classified as either sequential or alternating, with the former also serving as a reference. A likelihood ratio test (LRT) was used to determine if gender was an effect modifier for therapeutic effect; however, these results were not statistically significant ($\chi^2_3 = 2.55: p=.467$). Additionally, LRTs were also utilized to test if the effects of therapy type or gender were different for partial and compete remission. Both tests were also insignificant ($\chi^2_1 = .06: p=.8; \chi^2_1 = 1.84: p=.17$, respectively). Overall, however, the main effects model was indeed statistically significant ($\chi^2_6 = 13.93: p=.017$). Individuals partaking in alternating therapy had .54 times the odds of experiencing no change in disease status ($95 \%\ CI: .30, .96; p = .037$), .41 times the odds of experiencing partial remission ($95 \%\ CI: .20, .81; p = .011$), and .45 times the odds of experiencing complete remission (versus baseline) than those partaking in sequential therapy ($95 \%\ CI: .22, .93; p = .03$), all statistically significant results at $\alpha = .05$ size testing. Therefore, there is sufficient evidence that therapy type is associated with disease state in lung cancer.    
+
+
 \section{Question 2}
+
+\begin{enumerate}[a.]
+
+\item After adjusting for gender, patients got alternating treatment had 0.56 times of sequential treatment for response to chemotherapy above any level compared to lower level (Wald p=0.006).
+
+\begin{verbatim}
+ input response gender therapy frequency
+
+      response     gender    therapy  frequency
+  1. 1 0 0 28
+  2. 1 1 0 4
+  3. 1 0 1 41
+  4. 1 1 1 12
+  5. 2 0 0 45
+  6. 2 1 0 12
+  7. 2 0 1 44
+  8. 2 1 1 7
+  9. 3 0 0 29
+ 10. 3 1 0 5
+ 11. 3 0 1 20
+ 12. 3 1 1 3
+ 13. 4 0 0 26
+ 14. 4 1 0 2
+ 15. 4 0 1 20
+ 16. 4 1 1 1
+ 17. end 
+
+. label variable response "Response to Chemotherapy"
+. label variable gender   "Gender"
+. label variable therapy  "Type of Therapy"
+. * creating formats for variables 
+. label define fresponse  1 "Progressive" 2 "No Change" 3 "Partial Remission" 4 "Complete Remission"
+. label define fgender    0 "Male" 1 "Female"
+. label define ftherapy   0 "Sequential" 1 "Alternating"
+. label value response fresponse
+. label value gender fgender
+. label value therapy ftherapy
+
+. expand frequency
+(283 observations created)
+
+. * 2.a
+. ologit response i.therapy i.gender, or
+
+Iteration 0:   log likelihood = -399.98398  
+Iteration 1:   log likelihood = -394.53988  
+Iteration 2:   log likelihood = -394.52832  
+Iteration 3:   log likelihood = -394.52832  
+
+Ordered logistic regression                     Number of obs     =        299
+                                                LR chi2(2)        =      10.91
+                                                Prob > chi2       =     0.0043
+Log likelihood = -394.52832                     Pseudo R2         =     0.0136
+
+------------------------------------------------------------------------------
+    response | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     therapy |
+Alternating  |    .559515   .1186999    -2.74   0.006     .3691741    .8479929
+             |
+      gender |
+     Female  |   .5819366   .1671215    -1.89   0.059     .3314563    1.021704
+-------------+----------------------------------------------------------------
+       /cut1 |  -1.318043   .1797769                     -1.670399   -.9656869
+       /cut2 |   .2492335   .1613881                     -.0670813    .5655484
+       /cut3 |   1.300056   .1849928                      .9374766    1.662635
+------------------------------------------------------------------------------
+Note: Estimates are transformed only in the first equation.
+
+. est store main2
+. 
+end of do-file
+\end{verbatim}
+
+\item For males, patients got alternating treatment had 0.61 times response above any fixed level compare to sequential treatment. (Wald p=0.03).
+For female, patients got alternating treatment had 0.34 times response above any fixed level compare to sequential treatment. (Wald p=0.04).
+
+\begin{verbatim}
+ * 2.b
+. ologit response i.therapy##i.gender, or
+
+Iteration 0:   log likelihood = -399.98398  
+Iteration 1:   log likelihood = -394.01753  
+Iteration 2:   log likelihood = -394.00493  
+Iteration 3:   log likelihood = -394.00492  
+
+Ordered logistic regression                     Number of obs     =        299
+                                                LR chi2(3)        =      11.96
+                                                Prob > chi2       =     0.0075
+Log likelihood = -394.00492                     Pseudo R2         =     0.0149
+
+-------------------------------------------------------------------------------------
+           response | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+--------------------+----------------------------------------------------------------
+            therapy |
+       Alternating  |   .6138093   .1414933    -2.12   0.034     .3906765    .9643832
+                    |
+             gender |
+            Female  |   .7601872   .2944582    -0.71   0.479     .3558016    1.624176
+                    |
+     therapy#gender |
+Alternating#Female  |   .5540968   .3209109    -1.02   0.308     .1780752    1.724122
+--------------------+----------------------------------------------------------------
+              /cut1 |  -1.275657    .184367                      -1.63701   -.9143045
+              /cut2 |   .2957159   .1678283                     -.0332216    .6246534
+              /cut3 |   1.345164   .1905977                      .9715991    1.718728
+-------------------------------------------------------------------------------------
+Note: Estimates are transformed only in the first equation.
+
+. * Tx effect in males
+. lincom 1.therapy, or
+
+ ( 1)  [response]1.therapy = 0
+
+------------------------------------------------------------------------------
+    response | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .6138093   .1414933    -2.12   0.034     .3906765    .9643832
+------------------------------------------------------------------------------
+
+. * Tx effect in females
+. lincom 1.therapy+1.gender#1.therapy, or
+
+ ( 1)  [response]1.therapy + [response]1.therapy#1.gender = 0
+
+------------------------------------------------------------------------------
+    response | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .3401098   .1814773    -2.02   0.043     .1195174    .9678476
+------------------------------------------------------------------------------
+
+\end{verbatim}
+
+\item 
+
+\begin{verbatim}
+
+. * 2.c
+. lrtest main2
+
+Likelihood-ratio test                                 LR chi2(1)  =      1.05
+(Assumption: main2 nested in .)                       Prob > chi2 =    0.3062
+    
+\end{verbatim}
+The log-likelihood of the full model that includes the interactions is -394.00, and the log-likelihood of only the main effects model is -394.53.  The log-likelihood ratio test (-2*(-394.53+394)), indicates a non-significant result suggesting that the interaction terms does not statistically significantly alter the main effects model ($\chi^{2}=1.05, df=1, p=0.31)$. Hence adding the interaction of gender does not have a modifying effect over the levels of therapy when predicting higher levels of treatment response.   Hence the parsimonious model of only therapy and gender as independent predictors can be used.
+
+\item  Using ordered logistic regression  with the response to chemotherapy as an ordered response ranging from progressing disease, no change, partial response and complete response variable levels modeled by independent predictor variables such as sequential/alternative therapy and gender (femalse/male).  The first model which used therapy, after adjusting for gender, was a significant model compared to the null model ($\chi^{2}$,df=2,p=0.0043), and alternating therapy was statistically significant (Wald's test, p=0.006, 95$\%$ CI: (0.369, 0.85)), with the odds of higher level response to chemo-therapy was 0.559 in alternating therapy compared to sequential therapy after adjusting for gender.  Females had odds of higher level response to chemotherapy 0.58 times that of males (Wald's test p=0.059, $95\% CI:$(0.33,1.02)), assuming other variables constant. \par
+  The second model investigated ordered logistic regression that included interaction effect modifiers of gender and therapy levels.  The interaction model overall was a statistically significant model, compared to the null model fitting only the intercept (LR $\chi^{2}$, df=3, p=0.0075).  After adjusting for effect modification,  the odds of achieving higher levels of chemotherapy response was 0.614 in alternating therapy compared to sequential therapy (Wald's test p=0.034, $95\% CI:$(0.39,0.964)).  After adjusting for effect modification, gender was not significant predictor in higher levels of response (Wald's test p-value=0.479).  The interaction term did not significantly alter the main effects model (Likelihood ratio test p-value=0.31, $\chi^{2}=1.05, df=1)$.  Hence the most parsimonious model should include the therapy (sequential/alternating) and covariates gender (male/female).   Overall after adjusting for gender alternating therapy had lower odds of achieving higher levels of chemotherapy response compared to sequential therapy, which suggests, that the sequential therapy may have increased improvements to response to chemotherapy.  
+\end{enumerate}
 
 \end{document}
