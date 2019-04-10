@@ -234,6 +234,36 @@ Yes (Alternating)#Yes (Female)  |   1.089527   1.485756     0.06   0.950     .07
                                 |
                           _cons |   .5777778   .1423302    -2.23   0.026     .3565129    .9363678
 -------------------------------------------------------------------------------------------------
+
+. lincom [Progressive_Disease]1.alternating + [Progressive_Disease]1.female, rr
+
+ ( 1)  [Progressive_Disease]1.alternating + [Progressive_Disease]1.female = 0
+
+------------------------------------------------------------------------------
+    response |        RRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .8022669   .6277178    -0.28   0.778     .1731064     3.71813
+------------------------------------------------------------------------------
+
+. lincom [Partial_Remission]1.alternating + [Progressive_Disease]1.female, rr
+
+ ( 1)  [Progressive_Disease]1.female + [Partial_Remission]1.alternating = 0
+
+------------------------------------------------------------------------------
+    response |        RRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .3778549   .2840571    -1.29   0.195     .0865812    1.649021
+------------------------------------------------------------------------------
+
+. lincom [Complete_Remission]1.alternating + [Progressive_Disease]1.female, rr
+
+ ( 1)  [Progressive_Disease]1.female + [Complete_Remission]1.alternating = 0
+
+------------------------------------------------------------------------------
+    response |        RRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .4214535   .3179462    -1.15   0.252     .0960727    1.848841
+------------------------------------------------------------------------------
 \end{verbatim}
 
 \item
@@ -246,7 +276,7 @@ Likelihood-ratio test                                 LR chi2(3)  =      2.55
 \end{verbatim}
 
 \end{enumerate}
-To investigate if the magnitude of treatment response differs by gender, we fit a therapy and gender interaction term to the model. Overall, the model was not statistically significant ($\chi^2_9 = 16.38: p = .058$). Progressive disease status was utilized as a baseline. Individuals receiving alternating therapy had .668 times the odds of experiencing no change in disease status versus those partaking in sequential therapy ($95\%\ CI: .354, 1.26: p =.213$). However, the effect was .959 times the odds for females ($\beta = .291, 95\%\ CI: .0589, 1.439: p =.13)$. Moreover, the odds of partial remission for individuals receiving alternating treatment was .47 times the odds of sequential therapy ($95\%\ CI: .224, .992: p = .048)$, an effect that was also influenced by gender, being .895 times the odds for females ($\beta = .425, 95 \%\ CI: .591, 3.05: p=.394$). Lastly, those receiving alternating therapy had .525 times the odds of complete remission than those receiving sequential therapy ($95\%\ CI: .247, 1.12: p= .095$). Being female raised this value to .842 times the odds ($\beta = .317, 95 \%\ CI: .02, 5.0: p =.415$). No interaction terms were statistically significant.
+To investigate if the magnitude of treatment response differs by gender, we fit a therapy and gender interaction term to the model. Overall, the model was not statistically significant ($\chi^2_9 = 16.38: p = .058$). No change was utilized as a baseline. Individuals receiving alternating therapy had 1.50 times the odds of experiencing Progressive in disease status versus those partaking in sequential therapy ($95\%\ CI: 0.79, 2.83: p =0.213$). However, the effect was .55 times the odds for females ($95\%\ CI: .16, 1.82: p =.13)$. Moreover, the odds of partial remission for individuals receiving alternating treatment was .70 times the odds of sequential therapy ($95\%\ CI: .35, .1.43: p = .33)$, an effect that was also influenced by gender, being .65 times the odds for females ($95 \%\ CI: .21, 2.03: p=.46$). Lastly, those receiving alternating therapy had .79 times the odds of complete remission than those receiving sequential therapy ($95\%\ CI: .38, 1.60: p= 0.51$). Being female changed this value to .29 times the odds ($95 \%\ CI: .06, 1.39: p =.12$). No interaction terms were statistically significant.
 
 
 \begin{enumerate}[d.]
@@ -269,7 +299,7 @@ We use a LRT to test the null hypothesis that the coefficients of the interactio
 \item Summary
 \end{enumerate}
 
-A multinomial logistic regression model was utilized to explore the associations between the disease state of lung cancer as a dependent variable and therapy type and gender as independent predictors. The disease state of lung cancer was classified as "Progressive Disease," "No Change," "Partial Remission," and "Complete Remission," with the first category being treated as baseline. Therapy was classified as either sequential or alternating, with the former also serving as a reference. A likelihood ratio test (LRT) was used to determine if gender was an effect modifier for therapeutic effect; however, these results were not statistically significant ($\chi^2_3 = 2.55: p=.467$). Additionally, LRTs were also utilized to test if the effects of therapy type or gender were different for partial and compete remission. Both tests were also insignificant ($\chi^2_1 = .06: p=.8; \chi^2_1 = 1.84: p=.17$, respectively). Overall, however, the main effects model was indeed statistically significant ($\chi^2_6 = 13.93: p=.017$). Individuals partaking in alternating therapy had .54 times the odds of experiencing no change in disease status ($95 \%\ CI: .30, .96; p = .037$), .41 times the odds of experiencing partial remission ($95 \%\ CI: .20, .81; p = .011$), and .45 times the odds of experiencing complete remission (versus baseline) than those partaking in sequential therapy ($95 \%\ CI: .22, .93; p = .03$), all statistically significant results at $\alpha = .05$ size testing. Therefore, there is sufficient evidence that therapy type is associated with disease state in lung cancer.    
+A multinomial logistic regression model was utilized to explore the associations between the disease state of lung cancer as a dependent variable and therapy type and gender as independent predictors. The disease state of lung cancer was classified as "Progressive Disease," "No Change," "Partial Remission," and "Complete Remission," with the first category being treated as baseline. Therapy was classified as either sequential or alternating, with the former also serving as a reference. A likelihood ratio test (LRT) was used to determine if gender was an effect modifier for therapeutic effect; however, these results were not statistically significant ($\chi^2_3 = 2.55: p=.467$). Additionally, LRTs were also utilized to test if the effects of therapy type or gender were different for partial and compete remission. Both tests were also not significant ($\chi^2_1 = .06: p=.8; \chi^2_1 = 1.84: p=.17$, respectively). Overall, however, the main effects model was indeed statistically significant ($\chi^2_6 = 13.93: p=.017$). Individuals partaking in alternating therapy had .1.85 times the odds of experiencing a worsening in disease status ($95 \%\ CI: 1.03, 3.30; p = .037$), .75 times the odds of experiencing partial remission ($95 \%\ CI: 0.39, .1.45; p = .397$), and .83 times the odds of experiencing complete remission than those partaking in sequential therapy ($95 \%\ CI: .42, .1.65; p = .60$), all with respect to observing no change in the disease status (which was used as baseline).    
 
 
 \section{Question 2}
@@ -419,7 +449,7 @@ Likelihood-ratio test                                 LR chi2(1)  =      1.05
 \end{verbatim}
 The log-likelihood of the full model that includes the interactions is -394.00, and the log-likelihood of only the main effects model is -394.53.  The log-likelihood ratio test (-2*(-394.53+394)), indicates a non-significant result suggesting that the interaction terms does not statistically significantly alter the main effects model ($\chi^{2}=1.05, df=1, p=0.31)$. Hence adding the interaction of gender does not have a modifying effect over the levels of therapy when predicting higher levels of treatment response.   Hence the parsimonious model of only therapy and gender as independent predictors can be used.
 
-\item  Using ordered logistic regression  with the response to chemotherapy as an ordered response ranging from progressing disease, no change, partial response and complete response variable levels modeled by independent predictor variables such as sequential/alternative therapy and gender (femalse/male).  The first model which used therapy, after adjusting for gender, was a significant model compared to the null model ($\chi^{2}$,df=2,p=0.0043), and alternating therapy was statistically significant (Wald's test, p=0.006, 95$\%$ CI: (0.369, 0.85)), with the odds of higher level response to chemo-therapy was 0.559 in alternating therapy compared to sequential therapy after adjusting for gender.  Females had odds of higher level response to chemotherapy 0.58 times that of males (Wald's test p=0.059, $95\% CI:$(0.33,1.02)), assuming other variables constant. \par
+\item  Using ordered logistic regression to investigate patients with lung cancer  with the response to chemotherapy as an ordered response ranging from progressing disease, no change, partial response and complete response variable levels modeled by independent predictor variables such as sequential/alternative therapy and gender (femalse/male).  The first model which used therapy, after adjusting for gender, was a significant model compared to the null model ($\chi^{2}$,df=2,p=0.0043), and alternating therapy was statistically significant (Wald's test, p=0.006, 95$\%$ CI: (0.369, 0.85)), with the odds of higher level response to chemo-therapy was 0.559 in alternating therapy compared to sequential therapy after adjusting for gender.  Females had odds of higher level response to chemotherapy 0.58 times that of males (Wald's test p=0.059, $95\% CI:$(0.33,1.02)), assuming other variables constant. \par
   The second model investigated ordered logistic regression that included interaction effect modifiers of gender and therapy levels.  The interaction model overall was a statistically significant model, compared to the null model fitting only the intercept (LR $\chi^{2}$, df=3, p=0.0075).  After adjusting for effect modification,  the odds of achieving higher levels of chemotherapy response was 0.614 in alternating therapy compared to sequential therapy (Wald's test p=0.034, $95\% CI:$(0.39,0.964)).  After adjusting for effect modification, gender was not significant predictor in higher levels of response (Wald's test p-value=0.479).  The interaction term did not significantly alter the main effects model (Likelihood ratio test p-value=0.31, $\chi^{2}=1.05, df=1)$.  Hence the most parsimonious model should include the therapy (sequential/alternating) and covariates gender (male/female).   Overall after adjusting for gender alternating therapy had lower odds of achieving higher levels of chemotherapy response compared to sequential therapy, which suggests, that the sequential therapy may have increased improvements to response to chemotherapy.  
 \end{enumerate}
 
